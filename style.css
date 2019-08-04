@@ -5,8 +5,8 @@ td {
  width: 50px;
 }
 
-table {
-    border-collapse: collapse;
+#tableId {
+  margin-left: 20%
 }
 
 .gridForm {
@@ -17,6 +17,12 @@ table {
 
 .todo {
   border: 3px solid red;
+  margin: 5px;
+  padding: 2px;
+}
+
+.feature {
+  border: 3px solid green;
   margin: 5px;
   padding: 2px;
 }

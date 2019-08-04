@@ -1,6 +1,10 @@
 var count = 0;
 var grid = {};
 var table = document.getElementById("table");
+var inputs = document.getElementsByClassName("gridInput");
+for (i=0; i<inputs.length; i++){
+   inputs[i].onchange = changeGrid;
+}
 
 function changeCellColor(x,y,color) {
   var cellId = y + "." + x ;
@@ -25,6 +29,7 @@ function parseCell(id) {
   return res;
 }
 
+
 function initGrid(h, w) {
     grid.height = h;
     grid.width = w;
@@ -32,17 +37,22 @@ function initGrid(h, w) {
     grid.target = null;
     grid.obstacles = [];
     var i,k;
-    for (k=0; k< grid.width; k++) {
-        var row = table.insertRow(k);
-        for (i=0; i< grid.height; i++) {
-            var cell = row.insertCell(i);
-            var y = k+1;
-            var x = i+1;
-            cell.id =  y+ "." + x ;
-            cell.onclick = cellClick
-        }
+    var table = "<table>";
+    for (i=0; i<grid.height; i++) {
+      table += "<tr>"
+      for(k=0; k< grid.width; k++ ) {
+        var y = i+1;
+        var x = k+1;
+        var cellId = y+"."+x;
+        table += "<td id='" + cellId + "' onclick = cellClick(event); ></td>";
+
+      }
+      table += "</tr>";
+
     }
-    return grid;
+    table += "</table>";
+    document.getElementById("tableId").innerHTML = table;
+
 }
 
 function setOrigin(x,y) {
@@ -116,27 +126,33 @@ function setObstacle(x,y) {
 
 }
 
-function cellClick() {
+function cellClick(e) {
+  var id = e.originalTarget.id;
   switch(count) {
     case 0:
-      var yx = parseCell(this.id);
+      var yx = parseCell(id);
       setOrigin(yx.x, yx.y, grid);
       count++;
       break;
     case 1:
-      var yx = parseCell(this.id);
+      var yx = parseCell(id);
       var ok = setTarget(yx.x, yx.y, grid);
       if (ok) { count++};
       break;
     case 2:
-      var yx = parseCell(this.id);
+      var yx = parseCell(id);
       setObstacle(yx.x, yx.y, grid);
       break;
   }
 }
 
-
-initGrid(10,10 );
+function changeGrid(el) {
+  var w = inputs[1].value;
+  var h = inputs[0].value;
+  initGrid(h,w);
+  setOrigin(1,1);
+  setTarget(w,h);
+}
+initGrid(3,3 );
 setOrigin(1,1);
-setTarget(10,10);
-console.log(grid);
+setTarget(3,3);
