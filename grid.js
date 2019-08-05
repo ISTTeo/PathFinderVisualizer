@@ -7,6 +7,7 @@ class Node {
   }
 }
 
+var canSelectCell = true;
 var count = 0;
 var grid = {};
 var table = document.getElementById("table");
@@ -146,25 +147,29 @@ function setObstacle(x,y) {
 }
 
 function cellClick(e) {
-  console.log(e);
-  var id = e.target.id;
+  if (canSelectCell) {
+    var id = e.target.id;
 
-  switch(count) {
-    case 0:
-      var yx = parseCell(id);
-      setOrigin(yx.x, yx.y, grid);
-      count++;
-      break;
-    case 1:
-      var yx = parseCell(id);
-      var ok = setTarget(yx.x, yx.y, grid);
-      if (ok) { count++};
-      break;
-    case 2:
-      var yx = parseCell(id);
-      setObstacle(yx.x, yx.y, grid);
-      break;
+    switch(count) {
+      case 0:
+        var yx = parseCell(id);
+        setOrigin(yx.x, yx.y, grid);
+        count++;
+        break;
+      case 1:
+        var yx = parseCell(id);
+        var ok = setTarget(yx.x, yx.y, grid);
+        if (ok) { count++};
+        break;
+      case 2:
+        var yx = parseCell(id);
+        setObstacle(yx.x, yx.y, grid);
+        break;
+    }
+  } else {
+    console.log("canSelectCell is false");
   }
+
 }
 
 function changeGrid(el) {
@@ -175,6 +180,7 @@ function changeGrid(el) {
   setTarget(w,h);
   var btnBFS = document.getElementById("bfsButton");
   btnBFS.disabled = false;
+  canSelectCell = true;
 }
 
 function getNodeFromGrid(node) {
@@ -311,6 +317,7 @@ function stepBFS(queue, notFound) {
 function BFS(sourceNode) {
   var btn = document.getElementById("bfsButton");
   btn.disabled = true;
+  canSelectCell = false;
   var queue = [];
   queue.unshift(sourceNode);
   markVisited(sourceNode);
