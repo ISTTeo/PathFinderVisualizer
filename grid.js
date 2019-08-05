@@ -204,80 +204,120 @@ function traceBack(node) {
   }
 }
 
-function BFS(sourceNode) {
-  var queue = [];
-  queue.push(sourceNode);
-  markVisited(sourceNode);
-
-  while (queue.length != 0) {
+function stepBFS(queue, notFound) {
+  if (!notFound) {
+    clearInterval(bfsInterval);
+  } else {
     // Remove vertex from queue to visit its neighbours
     var node = queue.pop();
-    if(!isOrigin && !isTarget) {
-      console.log("normalnode"  + node.x + "." + node.y);
-      changeCellColor(node.x,node.y,"#fc7703");
+
+    if(!isOrigin(node) && !isTarget(node)) {
+      changeCellColor(node.x,node.y,"#f0ce54");
     }
+
     //neighbours
     var leftNeighbour = null;
     var topNeighbour = null;
     var rightNeighbour = null;
     var bottomNeighbour = null;
 
-    if(node.x != 1) {
+    if(node.x != 1 && notFound) {
       leftNeighbour = grid.cells[node.y - 1][node.x - 2];
       if (!leftNeighbour.visited) {
         grid.cells[node.y - 1][node.x - 2].parent = node;
-        queue.push(leftNeighbour);
+        queue.unshift(leftNeighbour);
         markVisited(leftNeighbour);
         if(isTarget(leftNeighbour)) {
           traceBack(grid.cells[node.y - 1][node.x - 2].parent);
+          notFound = false;
+        }
+
+        if(!isOrigin(leftNeighbour) && !isTarget(leftNeighbour)) {
+          changeCellColor(leftNeighbour.x,leftNeighbour.y,"#fc7703");
         }
 
       }
     }
-    if(node.y != 1) {
+    if(node.y != 1 && notFound) {
       topNeighbour = grid.cells[node.y - 2][node.x - 1];
       if (!topNeighbour.visited) {
         grid.cells[node.y - 2][node.x - 1].parent = node;
-        queue.push(topNeighbour);
+        queue.unshift(topNeighbour);
         markVisited(topNeighbour);
 
         if(isTarget(topNeighbour)) {
           traceBack(grid.cells[node.y - 2][node.x - 1]);
+          notFound = false;
+        }
+
+        if(!isOrigin(topNeighbour) && !isTarget(topNeighbour)) {
+          changeCellColor(topNeighbour.x,topNeighbour.y,"#fc7703");
         }
       }
     }
-    if(node.x != grid.width) {
+    if(node.x != grid.width && notFound) {
       rightNeighbour = grid.cells[node.y - 1][node.x];
       if (!rightNeighbour.visited) {
         grid.cells[node.y - 1][node.x].parent = node;
-        queue.push(rightNeighbour);
+        queue.unshift(rightNeighbour);
         markVisited(rightNeighbour);
 
         if(isTarget(rightNeighbour)) {
           traceBack(grid.cells[node.y - 1][node.x]);
+          notFound = false;
+        }
+
+        if(!isOrigin(rightNeighbour) && !isTarget(rightNeighbour)) {
+          changeCellColor(rightNeighbour.x,rightNeighbour.y,"#fc7703");
         }
       }
     }
-    if(node.y != grid.height) {
+    if(node.y != grid.height && notFound) {
       bottomNeighbour = grid.cells[node.y][node.x - 1];
       if (!bottomNeighbour.visited) {
         grid.cells[node.y][node.x-1].parent = node;
-        queue.push(bottomNeighbour);
+        queue.unshift(bottomNeighbour);
         markVisited(bottomNeighbour);
 
         if(isTarget(bottomNeighbour)) {
           traceBack(grid.cells[node.y][node.x - 1]);
+          notFound = false;
+        }
+
+        if(!isOrigin(bottomNeighbour) && !isTarget(bottomNeighbour)) {
+          changeCellColor(bottomNeighbour.x,bottomNeighbour.y,"#fc7703");
         }
       }
     }
-  }
 
+    return [queue,notFound];
+  }
 }
 
+
+function BFS(sourceNode) {
+  var queue = [];
+  queue.unshift(sourceNode);
+  markVisited(sourceNode);
+
+  var notFound = true;
+
+  //setInterval instead of while to allow for animations
+  var bfsInterval = setInterval(function() {
+    if (!notFound) {
+      clearInterval(bfsInterval);
+    } else {
+      console.log("step");
+      var res = stepBFS(queue, notFound);
+      queue = res[0];
+      notFound = res[1];
+
+    }
+
+  }, 100);
+
+}
 
 initGrid(9,9);
 setOrigin(1,1);
 setTarget(9,9);
-
-// You know the edges are at the for sides of each node
-//
