@@ -190,28 +190,38 @@ function isOrigin(node) {
   return node.x == grid.origin.x && node.y == grid.origin.y;
 }
 
+function isObstacle(node) {
+  var index = grid.obstacles.findIndex(function(el) {
+    return node.x == el.x && node.y == el.y;
+  })
+  return index != -1;
+}
+
 function isNormalNode(node) {
-  return !isOrigin(node) && !isTarget(node);
+  return !isOrigin(node) && !isTarget(node) && !isObstacle(node);
 }
 
 function traceBack(node) {
   var node = node.parent;
 
   while(!isOrigin(node)) {
-    changeCellColor(node.x,node.y, "black");
+    changeCellColor(node.x,node.y, "blue");
     node = node.parent;
 
   }
 }
 
+//TODO Proximity to the source defines how bright the color is
 function stepBFS(queue, notFound) {
   if (!notFound) {
     clearInterval(bfsInterval);
   } else {
     // Remove vertex from queue to visit its neighbours
     var node = queue.pop();
-
-    if(!isOrigin(node) && !isTarget(node)) {
+    if(isObstacle(node)) {
+      console.log("IS OBSTACLE" + JSON.stringify(node));
+    }
+    if(isNormalNode(node)) {
       changeCellColor(node.x,node.y,"#f0ce54");
     }
 
@@ -223,7 +233,7 @@ function stepBFS(queue, notFound) {
 
     if(node.x != 1 && notFound) {
       leftNeighbour = grid.cells[node.y - 1][node.x - 2];
-      if (!leftNeighbour.visited) {
+      if (!leftNeighbour.visited && !isObstacle(leftNeighbour)) {
         grid.cells[node.y - 1][node.x - 2].parent = node;
         queue.unshift(leftNeighbour);
         markVisited(leftNeighbour);
@@ -232,7 +242,7 @@ function stepBFS(queue, notFound) {
           notFound = false;
         }
 
-        if(!isOrigin(leftNeighbour) && !isTarget(leftNeighbour)) {
+        if(isNormalNode(leftNeighbour)) {
           changeCellColor(leftNeighbour.x,leftNeighbour.y,"#fc7703");
         }
 
@@ -240,7 +250,7 @@ function stepBFS(queue, notFound) {
     }
     if(node.y != 1 && notFound) {
       topNeighbour = grid.cells[node.y - 2][node.x - 1];
-      if (!topNeighbour.visited) {
+      if (!topNeighbour.visited && !isObstacle(topNeighbour)) {
         grid.cells[node.y - 2][node.x - 1].parent = node;
         queue.unshift(topNeighbour);
         markVisited(topNeighbour);
@@ -250,14 +260,14 @@ function stepBFS(queue, notFound) {
           notFound = false;
         }
 
-        if(!isOrigin(topNeighbour) && !isTarget(topNeighbour)) {
+        if(isNormalNode(topNeighbour)) {
           changeCellColor(topNeighbour.x,topNeighbour.y,"#fc7703");
         }
       }
     }
     if(node.x != grid.width && notFound) {
       rightNeighbour = grid.cells[node.y - 1][node.x];
-      if (!rightNeighbour.visited) {
+      if (!rightNeighbour.visited && !isObstacle(rightNeighbour)) {
         grid.cells[node.y - 1][node.x].parent = node;
         queue.unshift(rightNeighbour);
         markVisited(rightNeighbour);
@@ -267,14 +277,14 @@ function stepBFS(queue, notFound) {
           notFound = false;
         }
 
-        if(!isOrigin(rightNeighbour) && !isTarget(rightNeighbour)) {
+        if(isNormalNode(rightNeighbour)) {
           changeCellColor(rightNeighbour.x,rightNeighbour.y,"#fc7703");
         }
       }
     }
     if(node.y != grid.height && notFound) {
       bottomNeighbour = grid.cells[node.y][node.x - 1];
-      if (!bottomNeighbour.visited) {
+      if (!bottomNeighbour.visited && !isObstacle(bottomNeighbour)) {
         grid.cells[node.y][node.x-1].parent = node;
         queue.unshift(bottomNeighbour);
         markVisited(bottomNeighbour);
@@ -284,7 +294,7 @@ function stepBFS(queue, notFound) {
           notFound = false;
         }
 
-        if(!isOrigin(bottomNeighbour) && !isTarget(bottomNeighbour)) {
+        if(isNormalNode(bottomNeighbour)) {
           changeCellColor(bottomNeighbour.x,bottomNeighbour.y,"#fc7703");
         }
       }
