@@ -35,3 +35,26 @@
   overflow: hidden;
   background-color: #f1f1f1;
 }
+
+
+#cellTypeUL {
+  margin: 10px;
+  list-style-type: none;
+  padding: 0;
+  overflow: hidden;
+
+}
+#cellTypeUL li {
+  display: block;
+  border: 1px solid black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  float:left;
+  background-color: black;
+  color: white;
+}
+
+.activeCellType {
+  background-color: grey !important; 
+}

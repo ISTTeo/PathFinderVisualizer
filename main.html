@@ -14,13 +14,15 @@
     </head>
     <body>
 
-        <h1>Path-finder Visualization</h1>
+        <h1>Path-finder Visualizer</h1>
         <div class="gridForm">
-          <div class="feature">
-            <b >Better usability:</b>
-            Add what type of block you are adding now. Lets you choose type.
-          </div>
 
+
+            <ul id="cellTypeUL">
+              <li id="liOrigin" onclick="getCurrentCellType(this)" class="activeCellType">Origin</li>
+              <li id="liTarget" onclick="getCurrentCellType(this)">Target</li>
+              <li id="liObstacle" onclick="getCurrentCellType(this)">Obstacles</li>
+            </ul>
 
 
           <form>
@@ -28,7 +30,7 @@
             Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="5"><br>
           </form>
           <br>
-          
+
           <button type="button" name="button" id="bfsButton" onclick="BFS(grid.origin)">BFS</button>
         </div>
 

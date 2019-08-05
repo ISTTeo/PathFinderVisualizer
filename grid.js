@@ -155,11 +155,17 @@ function cellClick(e) {
         var yx = parseCell(id);
         setOrigin(yx.x, yx.y, grid);
         count++;
+        var item = document.querySelector(".activeCellType");
+        item.classList.remove("activeCellType")
+        document.getElementById("liTarget").classList.add("activeCellType");
         break;
       case 1:
         var yx = parseCell(id);
         var ok = setTarget(yx.x, yx.y, grid);
         if (ok) { count++};
+        var item = document.querySelector(".activeCellType");
+        item.classList.remove("activeCellType")
+        document.getElementById("liObstacle").classList.add("activeCellType");
         break;
       case 2:
         var yx = parseCell(id);
@@ -349,6 +355,8 @@ setTarget(5,5);
 
 //////////////////////////////////////////////
 // Page Related JS
+
+//Collapsible
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
@@ -362,4 +370,22 @@ for (i = 0; i < coll.length; i++) {
       content.style.display = "block";
     }
   });
+}
+// \Collapsible
+
+
+//Getcell cellType
+function getCurrentCellType(li) {
+  var item = document.querySelector(".activeCellType");
+  item.classList.remove("activeCellType")
+  li.classList.add("activeCellType")
+
+  if(document.getElementById("liOrigin") == li) {
+    count = 0;
+  } else if (document.getElementById("liTarget") == li) {
+    count = 1;
+  } else if (document.getElementById("liObstacle") == li) {
+    count = 2;
+  }
+
 }
