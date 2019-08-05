@@ -12,6 +12,7 @@ var grid = {};
 var table = document.getElementById("table");
 var inputs = document.getElementsByClassName("gridInput");
 
+//Make sure grid changes when you alter an input
 for (i=0; i<inputs.length; i++){
    inputs[i].onchange = changeGrid;
 }
@@ -172,6 +173,8 @@ function changeGrid(el) {
   initGrid(h,w);
   setOrigin(1,1);
   setTarget(w,h);
+  var btnBFS = document.getElementById("bfsButton");
+  btnBFS.disabled = false;
 }
 
 function getNodeFromGrid(node) {
@@ -211,6 +214,7 @@ function traceBack(node) {
   }
 }
 
+// BFS -- Start //
 //TODO Proximity to the source defines how bright the color is
 function stepBFS(queue, notFound) {
   if (!notFound) {
@@ -304,8 +308,9 @@ function stepBFS(queue, notFound) {
   }
 }
 
-
 function BFS(sourceNode) {
+  var btn = document.getElementById("bfsButton");
+  btn.disabled = true;
   var queue = [];
   queue.unshift(sourceNode);
   markVisited(sourceNode);
@@ -328,6 +333,26 @@ function BFS(sourceNode) {
 
 }
 
-initGrid(9,9);
+// BFS -- End //
+
+// Initialize Grid
+initGrid(5,5);
 setOrigin(1,1);
-setTarget(9,9);
+setTarget(5,5);
+
+//////////////////////////////////////////////
+// Page Related JS
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}

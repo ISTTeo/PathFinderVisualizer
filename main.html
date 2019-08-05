@@ -24,15 +24,12 @@
 
 
           <form>
-            Height (#cells): <input  class="gridInput" type="number" name="height" min="3" max="10" value="3"><br>
-            Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="3"><br>
+            Height (#cells): <input  class="gridInput" type="number" name="height" min="3" max="10" value="5"><br>
+            Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="5"><br>
           </form>
           <br>
-          <div class="todo">
-            <b>Bug:</b>
-            Disable button when algorithm is not in default state (during/after algorithm running)
-          </div>
-          <button type="button" name="button" onclick="BFS(grid.origin)">BFS</button>
+          
+          <button type="button" name="button" id="bfsButton" onclick="BFS(grid.origin)">BFS</button>
         </div>
 
         <div id="tableId">
