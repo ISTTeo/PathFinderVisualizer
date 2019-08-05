@@ -17,9 +17,10 @@
         <h1>Path-finder Visualization</h1>
         <div class="gridForm">
           <div class="feature">
-            <b >Better usability</b>
+            <b >Better usability:</b>
             Add what type of block you are adding now. Lets you choose type.
           </div>
+
 
 
           <form>
@@ -27,6 +28,10 @@
             Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="3"><br>
           </form>
           <br>
+          <div class="todo">
+            <b>Bug:</b>
+            Disable button when algorithm is not in default state (during/after algorithm running)
+          </div>
           <button type="button" name="button" onclick="BFS(grid.origin)">BFS</button>
         </div>
 
