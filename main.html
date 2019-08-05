@@ -26,6 +26,8 @@
             Height (#cells): <input  class="gridInput" type="number" name="height" min="3" max="10" value="3"><br>
             Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="3"><br>
           </form>
+          <br>
+          <button type="button" name="button" onclick="BFS(grid.origin)">BFS</button>
         </div>
 
         <div id="tableId">
@@ -45,7 +47,6 @@
 
 
         <script src="grid.js" async defer></script>
-        <script src="pathfinder.js" async defer></script>
         <script src="main.js" async defer></script>
     </body>
 </html>

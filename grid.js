@@ -1,7 +1,17 @@
+class Node {
+  constructor(x,y) {
+    this.x = x;
+    this.y = y;
+    this.visited = false;
+    this.parent;
+  }
+}
+
 var count = 0;
 var grid = {};
 var table = document.getElementById("table");
 var inputs = document.getElementsByClassName("gridInput");
+
 for (i=0; i<inputs.length; i++){
    inputs[i].onchange = changeGrid;
 }
@@ -29,21 +39,26 @@ function parseCell(id) {
   return res;
 }
 
-
 function initGrid(h, w) {
+    count = 0;
     grid.height = h;
     grid.width = w;
     grid.origin = null;
     grid.target = null;
     grid.obstacles = [];
+    grid.cells = [];
+
     var i,k;
     var table = "<table>";
     for (i=0; i<grid.height; i++) {
+      grid.cells.push([]);
       table += "<tr>"
       for(k=0; k< grid.width; k++ ) {
-        var y = i+1;
-        var x = k+1;
-        var cellId = y+"."+x;
+        var node = new Node(k+1,i+1);
+        grid.cells[i].push(node);
+        //var y = i+1;
+        //var x = k+1;
+        var cellId = node.y+"."+node.x;
         table += "<td id='" + cellId + "' onclick = cellClick(event); ></td>";
 
       }
@@ -55,8 +70,9 @@ function initGrid(h, w) {
 
 }
 
+//TODO bug when you set origin in target and then set target the origin disappears
 function setOrigin(x,y) {
-    var origin = {}
+    var origin = new Node(x,y);
     if (grid.origin == null) {
       origin.x = x;
       origin.y = y;
@@ -74,11 +90,14 @@ function setOrigin(x,y) {
 }
 
 function setTarget(x,y) {
+
     if (x == grid.origin.x && y == grid.origin.y ) {
       alert("Error: already origin");
       return false;
     } else {
-      var target = {}
+
+      var target = new Node(x,y);
+
       if (grid.target == null) {
 
         target.x = x;
@@ -123,11 +142,12 @@ function setObstacle(x,y) {
       changeCellColor(obstacle.x,obstacle.y,"grey");
     }
 
-
 }
 
 function cellClick(e) {
-  var id = e.originalTarget.id;
+  console.log(e);
+  var id = e.target.id;
+
   switch(count) {
     case 0:
       var yx = parseCell(id);
@@ -153,6 +173,111 @@ function changeGrid(el) {
   setOrigin(1,1);
   setTarget(w,h);
 }
-initGrid(3,3 );
+
+function getNodeFromGrid(node) {
+  return grid.cells[node.y - 1][node.x - 1];
+}
+
+function markVisited(node) {
+  getNodeFromGrid(node).visited = true;
+}
+
+function isTarget(node) {
+  return node.x == grid.target.x && node.y == grid.target.y;
+}
+
+function isOrigin(node) {
+  return node.x == grid.origin.x && node.y == grid.origin.y;
+}
+
+function isNormalNode(node) {
+  return !isOrigin(node) && !isTarget(node);
+}
+
+function traceBack(node) {
+  var node = node.parent;
+
+  while(!isOrigin(node)) {
+    changeCellColor(node.x,node.y, "black");
+    node = node.parent;
+
+  }
+}
+
+function BFS(sourceNode) {
+  var queue = [];
+  queue.push(sourceNode);
+  markVisited(sourceNode);
+
+  while (queue.length != 0) {
+    // Remove vertex from queue to visit its neighbours
+    var node = queue.pop();
+    if(!isOrigin && !isTarget) {
+      console.log("normalnode"  + node.x + "." + node.y);
+      changeCellColor(node.x,node.y,"#fc7703");
+    }
+    //neighbours
+    var leftNeighbour = null;
+    var topNeighbour = null;
+    var rightNeighbour = null;
+    var bottomNeighbour = null;
+
+    if(node.x != 1) {
+      leftNeighbour = grid.cells[node.y - 1][node.x - 2];
+      if (!leftNeighbour.visited) {
+        grid.cells[node.y - 1][node.x - 2].parent = node;
+        queue.push(leftNeighbour);
+        markVisited(leftNeighbour);
+        if(isTarget(leftNeighbour)) {
+          traceBack(grid.cells[node.y - 1][node.x - 2].parent);
+        }
+
+      }
+    }
+    if(node.y != 1) {
+      topNeighbour = grid.cells[node.y - 2][node.x - 1];
+      if (!topNeighbour.visited) {
+        grid.cells[node.y - 2][node.x - 1].parent = node;
+        queue.push(topNeighbour);
+        markVisited(topNeighbour);
+
+        if(isTarget(topNeighbour)) {
+          traceBack(grid.cells[node.y - 2][node.x - 1]);
+        }
+      }
+    }
+    if(node.x != grid.width) {
+      rightNeighbour = grid.cells[node.y - 1][node.x];
+      if (!rightNeighbour.visited) {
+        grid.cells[node.y - 1][node.x].parent = node;
+        queue.push(rightNeighbour);
+        markVisited(rightNeighbour);
+
+        if(isTarget(rightNeighbour)) {
+          traceBack(grid.cells[node.y - 1][node.x]);
+        }
+      }
+    }
+    if(node.y != grid.height) {
+      bottomNeighbour = grid.cells[node.y][node.x - 1];
+      if (!bottomNeighbour.visited) {
+        grid.cells[node.y][node.x-1].parent = node;
+        queue.push(bottomNeighbour);
+        markVisited(bottomNeighbour);
+
+        if(isTarget(bottomNeighbour)) {
+          traceBack(grid.cells[node.y][node.x - 1]);
+        }
+      }
+    }
+  }
+
+}
+
+
+initGrid(9,9);
 setOrigin(1,1);
-setTarget(3,3);
+setTarget(9,9);
+
+// You know the edges are at the for sides of each node
+//
