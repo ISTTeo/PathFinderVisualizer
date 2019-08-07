@@ -236,6 +236,24 @@ function traceBack(node) {
     
   }
 }
+function resetGrid() {
+  var row;
+  var col;
+  for ( row = 0; row < grid.height; row++) {
+    for ( col = 0; col <grid.width; col ++) {
+      grid.cells[row][col].parent = undefined;
+      grid.cells[row][col].visited = false;
+      if (isNormalNode(grid.cells[row][col])) {
+        changeCellColor(col+1, row+1, "white");
+      }
+    }
+  }
+  var btnBFS = document.getElementById("bfsButton");
+  btnBFS.disabled = false;
+  canSelectCell = true;
+  
+  
+}
 
 // BFS -- Start //
 //TODO Proximity to the source defines how bright the color is
@@ -245,7 +263,6 @@ function stepBFS(queue, notFound) {
   } else {
     // Remove vertex from queue to visit its neighbours
     var node = queue.pop();
-    console.log(node);
     
     if(isObstacle(node)) {
       console.log("IS OBSTACLE" + JSON.stringify(node));
@@ -261,7 +278,6 @@ function stepBFS(queue, notFound) {
     var bottomNeighbour = null;
 
     var id = node.y + "." + node.x;
-    console.log(id);
     if(node.x != 1 && notFound) {
       
 
@@ -339,6 +355,9 @@ function stepBFS(queue, notFound) {
 }
 
 function BFS(sourceNode) {
+  var btn = document.getElementById("resetButton");
+  btn.disabled = true;
+  
   var btn = document.getElementById("bfsButton");
   btn.disabled = true;
   canSelectCell = false;
@@ -352,8 +371,8 @@ function BFS(sourceNode) {
   var bfsInterval = setInterval(function() {
     if (!notFound) {
       clearInterval(bfsInterval);
-      console.log(JSON.stringify(grid));
-
+      var btn = document.getElementById("resetButton");
+      btn.disabled = false;
     } else {
       var res = stepBFS(queue, notFound);
       queue = res[0];
