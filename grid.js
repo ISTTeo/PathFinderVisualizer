@@ -192,6 +192,17 @@ function changeGrid(el) {
 function getNodeFromGrid(node) {
   return grid.cells[node.y - 1][node.x - 1];
 }
+function getNodeFromId(id) {
+  
+  var res = parseCell(id);
+  
+  
+  
+  return grid.cells[res.y - 1][res.x - 1];
+  
+}
+
+
 
 function markVisited(node) {
   getNodeFromGrid(node).visited = true;
@@ -216,13 +227,13 @@ function isNormalNode(node) {
   return !isOrigin(node) && !isTarget(node) && !isObstacle(node);
 }
 
-function traceBack(node) {
-  var node = node.parent;
-
-  while(!isOrigin(node)) {
-    changeCellColor(node.x,node.y, "blue");
-    node = node.parent;
-
+function traceBack(node) {  
+  var parent = getNodeFromId(node.parent);
+  
+  while(parent.parent != undefined) {
+    changeCellColor(parent.x,parent.y, "blue");
+    parent = getNodeFromId(parent.parent);
+    
   }
 }
 
@@ -234,6 +245,8 @@ function stepBFS(queue, notFound) {
   } else {
     // Remove vertex from queue to visit its neighbours
     var node = queue.pop();
+    console.log(node);
+    
     if(isObstacle(node)) {
       console.log("IS OBSTACLE" + JSON.stringify(node));
     }
@@ -247,14 +260,19 @@ function stepBFS(queue, notFound) {
     var rightNeighbour = null;
     var bottomNeighbour = null;
 
+    var id = node.y + "." + node.x;
+    console.log(id);
     if(node.x != 1 && notFound) {
+      
+
       leftNeighbour = grid.cells[node.y - 1][node.x - 2];
       if (!leftNeighbour.visited && !isObstacle(leftNeighbour)) {
-        grid.cells[node.y - 1][node.x - 2].parent = node;
+
+        grid.cells[node.y - 1][node.x - 2].parent = id;
         queue.unshift(leftNeighbour);
         markVisited(leftNeighbour);
         if(isTarget(leftNeighbour)) {
-          traceBack(grid.cells[node.y - 1][node.x - 2].parent);
+          traceBack(grid.cells[node.y - 1][node.x - 2]);
           notFound = false;
         }
 
@@ -267,7 +285,7 @@ function stepBFS(queue, notFound) {
     if(node.y != 1 && notFound) {
       topNeighbour = grid.cells[node.y - 2][node.x - 1];
       if (!topNeighbour.visited && !isObstacle(topNeighbour)) {
-        grid.cells[node.y - 2][node.x - 1].parent = node;
+        grid.cells[node.y - 2][node.x - 1].parent = id;
         queue.unshift(topNeighbour);
         markVisited(topNeighbour);
 
@@ -284,7 +302,7 @@ function stepBFS(queue, notFound) {
     if(node.x != grid.width && notFound) {
       rightNeighbour = grid.cells[node.y - 1][node.x];
       if (!rightNeighbour.visited && !isObstacle(rightNeighbour)) {
-        grid.cells[node.y - 1][node.x].parent = node;
+        grid.cells[node.y - 1][node.x].parent = id;
         queue.unshift(rightNeighbour);
         markVisited(rightNeighbour);
 
@@ -301,7 +319,7 @@ function stepBFS(queue, notFound) {
     if(node.y != grid.height && notFound) {
       bottomNeighbour = grid.cells[node.y][node.x - 1];
       if (!bottomNeighbour.visited && !isObstacle(bottomNeighbour)) {
-        grid.cells[node.y][node.x-1].parent = node;
+        grid.cells[node.y][node.x-1].parent = id;
         queue.unshift(bottomNeighbour);
         markVisited(bottomNeighbour);
 
@@ -334,8 +352,9 @@ function BFS(sourceNode) {
   var bfsInterval = setInterval(function() {
     if (!notFound) {
       clearInterval(bfsInterval);
+      console.log(JSON.stringify(grid));
+
     } else {
-      console.log("step");
       var res = stepBFS(queue, notFound);
       queue = res[0];
       notFound = res[1];
@@ -352,6 +371,7 @@ function BFS(sourceNode) {
 initGrid(5,5);
 setOrigin(1,1);
 setTarget(5,5);
+
 
 //////////////////////////////////////////////
 // Page Related JS
