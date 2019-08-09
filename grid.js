@@ -3,7 +3,11 @@ class Node {
     this.x = x;
     this.y = y;
     this.visited = false;
+    //BFS
     this.parent;
+
+    //Djikstra, every node starts at infinity
+    this.distance = Infinity;
   }
 }
 
@@ -18,12 +22,14 @@ for (i=0; i<inputs.length; i++){
    inputs[i].onchange = changeGrid;
 }
 
+// Grid Functionality
 function changeCellColor(x,y,color) {
   var cellId = y + "." + x ;
   var cell = document.getElementById(cellId);
   cell.style.backgroundColor = color;
 }
 
+// Grid Functionality
 function alreadyColored(x,y,color) {
   var cellId = y + "." + x ;
   var cell = document.getElementById(cellId);
@@ -31,6 +37,7 @@ function alreadyColored(x,y,color) {
   return cell.style.backgroundColor == color
 }
 
+// Grid Functionality
 function parseCell(id) {
   var res = {};
   var parsed = id.split(".").map(function(item) {
@@ -41,6 +48,7 @@ function parseCell(id) {
   return res;
 }
 
+// Grid Functionality
 function initGrid(h, w) {
     count = 0;
     grid.height = h;
@@ -49,6 +57,8 @@ function initGrid(h, w) {
     grid.target = null;
     grid.obstacles = [];
     grid.cells = [];
+    grid.unvisited = [];
+    //grid.minDistance = []; // index 0 is distance, index 1 is the id of the node
 
     var i,k;
     var table = "<table>";
@@ -58,11 +68,9 @@ function initGrid(h, w) {
       for(k=0; k< grid.width; k++ ) {
         var node = new Node(k+1,i+1);
         grid.cells[i].push(node);
-        //var y = i+1;
-        //var x = k+1;
         var cellId = node.y+"."+node.x;
         table += "<td id='" + cellId + "' onclick = cellClick(event); ></td>";
-
+        grid.unvisited.push(cellId);
       }
       table += "</tr>";
 
@@ -72,47 +80,49 @@ function initGrid(h, w) {
 
 }
 
+
+// Grid Functionality
 //TODO bug when you set origin in target and then set target the origin disappears
 function setOrigin(x,y) {
-    var origin = new Node(x,y);
+    var id = y + "." + x;
     if (grid.origin == null) {
-      origin.x = x;
-      origin.y = y;
-      grid.origin = origin;
+
+      grid.origin = id;
       changeCellColor(x,y,"green");
 
     } else {
-      changeCellColor(grid.origin.x,grid.origin.y,"white");
-      origin.x = x;
-      origin.y = y;
-      grid.origin = origin;
-      changeCellColor(grid.origin.x,grid.origin.y,"green");
+      var oldOrigin = getNodeFromId(grid.origin);
+      changeCellColor(oldOrigin.x,oldOrigin.y,"white");
+
+      grid.origin = id;
+      changeCellColor(x,y,"green");
 
     }
+
 }
 
+// Grid Functionality
 function setTarget(x,y) {
-
-    if (x == grid.origin.x && y == grid.origin.y ) {
+    var id = y + "." + x;
+    var node = getNodeFromId(id)
+    if (isOrigin(node) ) {
       alert("Error: already origin");
       return false;
     } else {
 
-      var target = new Node(x,y);
 
       if (grid.target == null) {
 
-        target.x = x;
-        target.y = y;
-        grid.target = target;
+
+        grid.target = id;
         changeCellColor(x,y,"red");
 
       } else {
-        changeCellColor(grid.target.x,grid.target.y,"white");
-        target.x = x;
-        target.y = y;
-        grid.target = target;
-        changeCellColor(grid.target.x,grid.target.y,"red");
+        var oldTarget = getNodeFromId(grid.target);
+        changeCellColor(oldTarget.x,oldTarget.y,"white");
+
+        grid.target = id;
+        changeCellColor(x,y,"red");
 
       }
       return true;
@@ -120,6 +130,7 @@ function setTarget(x,y) {
 
 }
 
+// Grid Functionality
 function removeObstacle(obstacle) {
     changeCellColor(obstacle.x,obstacle.y,"white");
     var index = grid.obstacles.findIndex(function(el) {
@@ -128,6 +139,7 @@ function removeObstacle(obstacle) {
     grid.obstacles.splice(1,index-1);
 }
 
+// Grid Functionality
 function setObstacle(x,y) {
     var obstacle = {};
 
@@ -146,6 +158,7 @@ function setObstacle(x,y) {
 
 }
 
+// Grid Functionality
 function cellClick(e) {
   if (canSelectCell) {
     var id = e.target.id;
@@ -178,6 +191,7 @@ function cellClick(e) {
 
 }
 
+// Grid Functionality
 function changeGrid(el) {
   var w = inputs[1].value;
   var h = inputs[0].value;
@@ -189,33 +203,42 @@ function changeGrid(el) {
   canSelectCell = true;
 }
 
+// Grid Functionality
 function getNodeFromGrid(node) {
   return grid.cells[node.y - 1][node.x - 1];
 }
+
+// Grid Functionality
 function getNodeFromId(id) {
-  
+
   var res = parseCell(id);
-  
-  
-  
+
+
+
   return grid.cells[res.y - 1][res.x - 1];
-  
+
 }
 
 
 
+// Grid Functionality
 function markVisited(node) {
   getNodeFromGrid(node).visited = true;
 }
 
+// Grid Functionality
 function isTarget(node) {
-  return node.x == grid.target.x && node.y == grid.target.y;
+  var target = getNodeFromId(grid.target);
+  return node.x == target.x && node.y ==  target.y;
 }
 
+// Grid Functionality
 function isOrigin(node) {
-  return node.x == grid.origin.x && node.y == grid.origin.y;
+  var origin = getNodeFromId(grid.origin);
+  return node.x == origin.x && node.y == origin.y;
 }
 
+// Grid Functionality
 function isObstacle(node) {
   var index = grid.obstacles.findIndex(function(el) {
     return node.x == el.x && node.y == el.y;
@@ -223,19 +246,19 @@ function isObstacle(node) {
   return index != -1;
 }
 
+// Grid Functionality
 function isNormalNode(node) {
   return !isOrigin(node) && !isTarget(node) && !isObstacle(node);
 }
 
-function traceBack(node) {  
-  var parent = getNodeFromId(node.parent);
-  
-  while(parent.parent != undefined) {
-    changeCellColor(parent.x,parent.y, "blue");
-    parent = getNodeFromId(parent.parent);
-    
-  }
+function isNormalNodeFromId(id) {
+  var node = getNodeFromId(id);
+  return !isOrigin(node) && !isTarget(node) && !isObstacle(node);
 }
+
+
+
+// Grid Functionality
 function resetGrid() {
   var row;
   var col;
@@ -251,10 +274,20 @@ function resetGrid() {
   var btnBFS = document.getElementById("bfsButton");
   btnBFS.disabled = false;
   canSelectCell = true;
-  
-  
+
+
 }
 
+//Used in BFS
+function traceBack(node) {
+  var parent = getNodeFromId(node.parent);
+
+  while(parent.parent != undefined) {
+    changeCellColor(parent.x,parent.y, "blue");
+    parent = getNodeFromId(parent.parent);
+
+  }
+}
 // BFS -- Start //
 //TODO Proximity to the source defines how bright the color is
 function stepBFS(queue, notFound) {
@@ -263,7 +296,7 @@ function stepBFS(queue, notFound) {
   } else {
     // Remove vertex from queue to visit its neighbours
     var node = queue.pop();
-    
+
     if(isObstacle(node)) {
       console.log("IS OBSTACLE" + JSON.stringify(node));
     }
@@ -279,7 +312,7 @@ function stepBFS(queue, notFound) {
 
     var id = node.y + "." + node.x;
     if(node.x != 1 && notFound) {
-      
+
 
       leftNeighbour = grid.cells[node.y - 1][node.x - 2];
       if (!leftNeighbour.visited && !isObstacle(leftNeighbour)) {
@@ -354,10 +387,11 @@ function stepBFS(queue, notFound) {
   }
 }
 
-function BFS(sourceNode) {
+function BFS() {
+  var sourceNode = getNodeFromId(grid.origin);
   var btn = document.getElementById("resetButton");
   btn.disabled = true;
-  
+
   var btn = document.getElementById("bfsButton");
   btn.disabled = true;
   canSelectCell = false;
@@ -373,6 +407,7 @@ function BFS(sourceNode) {
       clearInterval(bfsInterval);
       var btn = document.getElementById("resetButton");
       btn.disabled = false;
+      console.log(grid);
     } else {
       var res = stepBFS(queue, notFound);
       queue = res[0];
@@ -383,13 +418,25 @@ function BFS(sourceNode) {
   }, 100);
 
 }
-
 // BFS -- End //
+
+// DFS - Start
+
+function DFS() {
+  var sourceNode = grid.origin;
+  console.log(sourceNode);
+  var queue = [];
+  queue.unshift(sourceNode);
+}
+
+// DFS - End
 
 // Initialize Grid
 initGrid(5,5);
 setOrigin(1,1);
 setTarget(5,5);
+//DFS();
+console.log(grid);
 
 
 //////////////////////////////////////////////
@@ -413,6 +460,7 @@ for (i = 0; i < coll.length; i++) {
 // \Collapsible
 
 
+// Grid Functionality
 //Getcell cellType
 function getCurrentCellType(li) {
   var item = document.querySelector(".activeCellType");
