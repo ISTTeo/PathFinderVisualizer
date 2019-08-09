@@ -28,7 +28,9 @@
           <form>
             Height (#cells): <input  class="gridInput" type="number" name="height" min="3" max="10" value="5"><br>
             Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="5"><br>
+            
           </form>
+          <button onclick="resetGrid()" id="resetButton">Reset</button>
           <br>
 
           <button type="button" name="button" id="bfsButton" onclick="BFS(grid.origin)">BFS</button>
