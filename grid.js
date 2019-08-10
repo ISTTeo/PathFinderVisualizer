@@ -198,8 +198,7 @@ function changeGrid(el) {
   initGrid(h,w);
   setOrigin(1,1);
   setTarget(w,h);
-  var btnBFS = document.getElementById("bfsButton");
-  btnBFS.disabled = false;
+  enableAlgButtons();
   canSelectCell = true;
 }
 
@@ -271,8 +270,7 @@ function resetGrid() {
       }
     }
   }
-  var btnBFS = document.getElementById("bfsButton");
-  btnBFS.disabled = false;
+  enableAlgButtons();
   canSelectCell = true;
 
 
@@ -389,11 +387,9 @@ function stepBFS(queue, notFound) {
 
 function BFS() {
   var sourceNode = getNodeFromId(grid.origin);
-  var btn = document.getElementById("resetButton");
-  btn.disabled = true;
+  disableReset();
 
-  var btn = document.getElementById("bfsButton");
-  btn.disabled = true;
+  disableAlgButtons();
   canSelectCell = false;
   var queue = [];
   queue.unshift(sourceNode);
@@ -405,8 +401,7 @@ function BFS() {
   var bfsInterval = setInterval(function() {
     if (!notFound) {
       clearInterval(bfsInterval);
-      var btn = document.getElementById("resetButton");
-      btn.disabled = false;
+      enableReset();
       console.log(grid);
     } else {
       var res = stepBFS(queue, notFound);
@@ -421,12 +416,116 @@ function BFS() {
 // BFS -- End //
 
 // DFS - Start
+function stepDFS(queue, notFound) {
+  if (!notFound) {
+    clearInterval(dfsInterval);
+  } else {
+    var nodeId = queue.pop();
+
+    
+    var node = getNodeFromId(nodeId);
+    if(isNormalNode(node)) {
+      changeCellColor(node.x,node.y,"#f0ce54");
+    }
+    var neighbour = null;
+    var neighbourId  = null;
+    if(node.x != 1 && notFound) {
+      
+
+      neighbour = grid.cells[node.y - 1][node.x - 2];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.push(neighbourId)
+      }
+    }
+    if(node.y != 1 && notFound) {
+      neighbour = grid.cells[node.y - 2][node.x - 1];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.push(neighbourId)
+      }
+    }
+    if(node.x != grid.width && notFound) {
+      neighbour = grid.cells[node.y - 1][node.x ];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.push(neighbourId)
+      }
+    }
+    if(node.y != grid.height && notFound) {
+      neighbour = grid.cells[node.y ][node.x - 1];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+          
+        }
+        queue.push(neighbourId)
+      }
+    }
+
+  }
+
+  return [queue, notFound];
+}
 
 function DFS() {
-  var sourceNode = grid.origin;
-  console.log(sourceNode);
+  disableReset();
+  disableAlgButtons();
+  var sourceNodeId = grid.origin;
+  markVisited(getNodeFromId(sourceNodeId));
   var queue = [];
-  queue.unshift(sourceNode);
+  queue.push(sourceNodeId);
+  
+  var notFound = true;
+
+  //setInterval instead of while to allow for animations
+  var dfsInterval = setInterval(function() {
+    if (!notFound) {
+      clearInterval(dfsInterval);
+      enableReset();
+      console.log(grid);
+    } else {
+      var res = stepDFS(queue, notFound);
+      queue = res[0];
+      notFound = res[1];
+
+    }
+
+  }, 100);
 }
 
 // DFS - End
@@ -435,7 +534,6 @@ function DFS() {
 initGrid(5,5);
 setOrigin(1,1);
 setTarget(5,5);
-//DFS();
 console.log(grid);
 
 
@@ -475,4 +573,29 @@ function getCurrentCellType(li) {
     count = 2;
   }
 
+}
+
+function disableAlgButtons() {
+  var btnBFS = document.getElementById("bfsButton");
+  var btnDFS = document.getElementById("dfsButton");
+  
+  btnDFS.disabled = true;
+  btnBFS.disabled = true;
+}
+
+function enableAlgButtons() {
+  var btnBFS = document.getElementById("bfsButton");
+  var btnDFS = document.getElementById("dfsButton");
+  btnDFS.disabled = false;
+  btnBFS.disabled = false;
+}
+
+function enableReset() {
+  var btn = document.getElementById("resetButton");
+  btn.disabled = false;
+}
+
+function disableReset() {
+  var btn = document.getElementById("resetButton");
+  btn.disabled = true;
 }
