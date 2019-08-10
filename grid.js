@@ -405,7 +405,7 @@ function BFS() {
 
     } else {
       var res = stepBFS(queue, notFound);
-      
+        
       queue = res[0];
       notFound = res[1];
 
