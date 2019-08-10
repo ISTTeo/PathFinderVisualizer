@@ -386,25 +386,26 @@ function stepBFS(queue, notFound) {
 }
 
 function BFS() {
-  var sourceNode = getNodeFromId(grid.origin);
-  disableReset();
-
-  disableAlgButtons();
   canSelectCell = false;
-  var queue = [];
-  queue.unshift(sourceNode);
-  markVisited(sourceNode);
+  disableReset();
+  disableAlgButtons();
 
   var notFound = true;
+  var sourceNode = getNodeFromId(grid.origin);
+  var queue = [];
+  
+  queue.unshift(sourceNode);
+  markVisited(sourceNode);
 
   //setInterval instead of while to allow for animations
   var bfsInterval = setInterval(function() {
     if (!notFound) {
       clearInterval(bfsInterval);
-      enableReset();
-      console.log(grid);
+      enableResetBtn();
+
     } else {
       var res = stepBFS(queue, notFound);
+      
       queue = res[0];
       notFound = res[1];
 
@@ -503,23 +504,27 @@ function stepDFS(queue, notFound) {
 }
 
 function DFS() {
+  canSelectCell = false;
   disableReset();
   disableAlgButtons();
-  var sourceNodeId = grid.origin;
-  markVisited(getNodeFromId(sourceNodeId));
+
   var queue = [];
-  queue.push(sourceNodeId);
-  
+  var sourceNodeId = grid.origin;
   var notFound = true;
 
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.push(sourceNodeId);
+  
+  
   //setInterval instead of while to allow for animations
   var dfsInterval = setInterval(function() {
     if (!notFound) {
       clearInterval(dfsInterval);
-      enableReset();
-      console.log(grid);
+      enableResetBtn();
+
     } else {
       var res = stepDFS(queue, notFound);
+
       queue = res[0];
       notFound = res[1];
 
@@ -590,7 +595,7 @@ function enableAlgButtons() {
   btnBFS.disabled = false;
 }
 
-function enableReset() {
+function enableResetBtn() {
   var btn = document.getElementById("resetButton");
   btn.disabled = false;
 }
