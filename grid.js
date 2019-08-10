@@ -16,6 +16,11 @@ var count = 0;
 var grid = {};
 var table = document.getElementById("table");
 var inputs = document.getElementsByClassName("gridInput");
+var stepInput = document.getElementById("stepInput");
+var stepDur = 100;
+stepInput.onchange = function() {
+  stepDur = stepInput.valueAsNumber;
+}
 
 //Make sure grid changes when you alter an input
 for (i=0; i<inputs.length; i++){
@@ -411,7 +416,7 @@ function BFS() {
 
     }
 
-  }, 100);
+  }, stepDur);
 
 }
 // BFS -- End //
@@ -530,7 +535,7 @@ function DFS() {
 
     }
 
-  }, 100);
+  }, stepDur);
 }
 
 // DFS - End

@@ -28,10 +28,12 @@
           <form>
             Height (#cells): <input  class="gridInput" type="number" name="height" min="3" max="10" value="5"><br>
             Width (#cells): <input class="gridInput" type="number" name="width" min="3" max="10" value="5"><br>
-
           </form>
-          <button onclick="resetGrid()" id="resetButton">Reset</button>
+            Step (in ms): <input id="stepInput" type="number" name="step" min="10" max="3000" value="100"><br>
+
           <br>
+          <button onclick="resetGrid()" id="resetButton">Reset</button>
+          <hr>
 
           <button type="button" name="button" id="bfsButton" onclick="BFS()">BFS</button>
           <button type="button" name="button" id="dfsButton" onclick="DFS()">DFS</button>
