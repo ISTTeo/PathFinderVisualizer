@@ -38,6 +38,7 @@ for (i=0; i<inputs.length; i++){
    inputs[i].onchange = changeGrid;
 }
 
+// TODO fix problem after resizing (node is null)
 function gridDistances() {
   for (var row = 1; row < grid.height + 1; row ++ ) {
     for (var col = 1; col < grid.width + 1; col ++ ) {
@@ -157,7 +158,6 @@ function setTarget(x,y) {
         changeCellColor(x,y,"red");
 
       }
-      gridDistances();
       return true;
     }
     
@@ -657,6 +657,8 @@ function bestfsStep(queue, notFound) {
   return [queue, notFound];
 }
 function bestFirstSearch() {
+  //gridDistances();
+
   canSelectCell = false;
   disableReset();
   disableAlgButtons();
