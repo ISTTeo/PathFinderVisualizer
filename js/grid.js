@@ -3,83 +3,10 @@ const queueParent = i => ((i+1) >>> 1) - 1;
 const queueLeft = i => (i << 1) + 1;
 const queueRight = i => (i + 1) << 1;
 
-class PriorityQueue {
-  constructor(comparator = ( a, b ) => a > b ) {
-    this._heap = [];
-    this._comparator = comparator;
-  }
-
-  size() {
-    return this._heap.length;
-  }
-
-  isEmpty() {
-    return this.size() == 0;
-  }
-
-  peek() {
-    return this._heap[queueTop];
-  }
-
-  push(...values) {
-    values.forEach(value => {
-      this._heap.push(value);
-      this._siftUp();
-    });
-    return this.size();
-  }
-
-  pop() {
-    const poppedValue = this.peek();
-    const bottom = this.size() - 1;
-    if (bottom > queueTop) {
-      this._swap(queueTop, bottom);
-    }
-    this._heap.pop();
-    this._siftDown();
-    return poppedValue;
-  }
-
-  replace(value) {
-    const replacedValue = this.peek();
-    this._heap[queueTop] = value;
-    this._siftDown();
-    return replacedValue;
-  }
-
-  _greater(i, j) {
-    return this._comparator(this._heap[i], this._heap[j]);
-  }
-
-  _swap(i, j) {
-    [this._heap[i], this._heap[j]] = [this._heap[j], this._heap[i]];
-  }
-
-  _siftUp() {
-    let node = this.size() - 1;
-    while(node > queueTop && this._greater(node, queueParent(node))) {
-      this._swap(node, queueParent(node));
-      node = queueParent(node);
-    }
-  }
-
-  _siftDown() {
-    let node = queueTop;
-    while (
-      ( queueLeft(node) < this.size() && this._greater(queueLeft(node), node)) ||
-      ( queueRight(node) < this.size() && this._greater(queueRight(node), node))
-    ) {
-      let maxChild = (queueRight(node) < this.size() && this._greater(queueRight(node), queueLeft(node))) ? queueRight(node) :queueLeft(node);
-      this._swap(node, maxChild);
-      node = maxChild;
-    }
-  }
+function distanceToTarget(node) {
+  var target = getNodeFromId(grid.target);  
+  return Math.abs(node.x - target.x) + Math.abs(node.y - target.y);
 }
-
-
-const queue = new PriorityQueue();
-queue.push(10, 20, 30, 40, 50);
-console.log(queue);
 
 class Node {
   constructor(x,y) {
@@ -628,6 +555,10 @@ initGrid(5,5);
 setOrigin(1,1);
 setTarget(5,5);
 console.log(grid);
+
+// This comparator prioritizes nodes closer to target
+// Uses PriorityQueue from adamhooper
+var queue = new PriorityQueue({ comparator: function(a, b) { return distanceToTarget(a) - distanceToTarget(b); }});
 
 
 //////////////////////////////////////////////
