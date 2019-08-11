@@ -3,8 +3,9 @@ const queueParent = i => ((i+1) >>> 1) - 1;
 const queueLeft = i => (i << 1) + 1;
 const queueRight = i => (i + 1) << 1;
 
-function distanceToTarget(node) {
+function distanceToTarget(nodeID) {
   var target = getNodeFromId(grid.target);  
+  var node = getNodeFromId(nodeID);
   return Math.abs(node.x - target.x) + Math.abs(node.y - target.y);
 }
 
@@ -35,6 +36,21 @@ stepInput.onchange = function() {
 //Make sure grid changes when you alter an input
 for (i=0; i<inputs.length; i++){
    inputs[i].onchange = changeGrid;
+}
+
+function gridDistances() {
+  for (var row = 1; row < grid.height + 1; row ++ ) {
+    for (var col = 1; col < grid.width + 1; col ++ ) {
+      
+      var id = row + "." + col;
+      
+      var cell = document.getElementById(id);
+      var d = distanceToTarget(id);
+      
+      cell.innerHTML = d;
+      
+    }  
+  }
 }
 
 // Grid Functionality
@@ -113,11 +129,12 @@ function setOrigin(x,y) {
       changeCellColor(x,y,"green");
 
     }
-
 }
 
 // Grid Functionality
 function setTarget(x,y) {
+    console.log("set target");
+    
     var id = y + "." + x;
     var node = getNodeFromId(id)
     if (isOrigin(node) ) {
@@ -140,8 +157,10 @@ function setTarget(x,y) {
         changeCellColor(x,y,"red");
 
       }
+      gridDistances();
       return true;
     }
+    
 
 }
 
@@ -550,16 +569,132 @@ function DFS() {
 
 // DFS - End
 
+//Best-First-Search Start
+function bestfsStep(queue, notFound) {
+  if (!notFound) {
+    clearInterval(bestfsInterval);
+  } 
+  else {
+    var nodeId = queue.dequeue();
+
+    
+    var node = getNodeFromId(nodeId);
+    if(isNormalNode(node)) {
+      changeCellColor(node.x,node.y,"#f0ce54");
+    }
+    var neighbour = null;
+    var neighbourId  = null;
+    if(node.x != 1 && notFound) {
+      
+
+      neighbour = grid.cells[node.y - 1][node.x - 2];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.queue(neighbourId)
+      }
+    }
+    if(node.y != 1 && notFound) {
+      neighbour = grid.cells[node.y - 2][node.x - 1];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.queue(neighbourId)
+      }
+    }
+    if(node.x != grid.width && notFound) {
+      neighbour = grid.cells[node.y - 1][node.x ];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+        }
+        queue.queue(neighbourId)
+      }
+    }
+    if(node.y != grid.height && notFound) {
+      neighbour = grid.cells[node.y ][node.x - 1];
+      neighbourId = neighbour.y + "." + neighbour.x;
+      if (!neighbour.visited && !isObstacle(neighbour)) {
+        markVisited(neighbour);
+        if(isNormalNode(node)) {
+          changeCellColor(node.x,node.y,"#fc7703");
+        }
+        neighbour.parent = nodeId;
+        if (isTarget(neighbour)) {
+          traceBack(neighbour);
+          notFound = false;
+          
+        }
+        queue.queue(neighbourId)
+      }
+    }
+
+  }
+
+  return [queue, notFound];
+}
+function bestFirstSearch() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  // This comparator prioritizes nodes closer to target
+  // Uses PriorityQueue from adamhooper
+  var queue = new PriorityQueue({ comparator: function(a, b) { return distanceToTarget(a) - distanceToTarget(b); }});
+
+  var sourceNodeId = grid.origin;
+  var notFound = true;
+
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.queue(sourceNodeId);
+  
+  
+  //setInterval instead of while to allow for animations
+  var bestfsInterval = setInterval(function() {
+    if (!notFound) {
+      clearInterval(bestfsInterval);
+      enableResetBtn();
+
+    } else {
+      var res = bestfsStep(queue, notFound);
+
+      queue = res[0];
+      notFound = res[1];
+
+    }
+
+  }, stepDur);
+}
+//Best-First-Search End
+
 // Initialize Grid
 initGrid(5,5);
 setOrigin(1,1);
 setTarget(5,5);
 console.log(grid);
-
-// This comparator prioritizes nodes closer to target
-// Uses PriorityQueue from adamhooper
-var queue = new PriorityQueue({ comparator: function(a, b) { return distanceToTarget(a) - distanceToTarget(b); }});
-
 
 //////////////////////////////////////////////
 // Page Related JS
@@ -602,7 +737,9 @@ function getCurrentCellType(li) {
 function disableAlgButtons() {
   var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
-  
+  var btnBestFS = document.getElementById("bestfsButton");
+
+  btnBestFS.disabled = true;
   btnDFS.disabled = true;
   btnBFS.disabled = true;
 }
@@ -610,6 +747,9 @@ function disableAlgButtons() {
 function enableAlgButtons() {
   var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
+  var btnBestFS = document.getElementById("bestfsButton");
+
+  btnBestFS.disabled = false;
   btnDFS.disabled = false;
   btnBFS.disabled = false;
 }
