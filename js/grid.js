@@ -271,6 +271,10 @@ function markVisited(node) {
   getNodeFromGrid(node).visited = true;
 }
 
+function markVisitedId(node) {
+  getNodeFromId(node).visited = true;
+}
+
 // Grid Functionality
 function isTarget(node) {
   var target = getNodeFromId(grid.target);
@@ -461,6 +465,94 @@ function BFS() {
 
 }
 // BFS -- End //
+
+
+///////////////////////
+function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
+  var neighbour = getNodeFromId(neighbourId);
+  if (!neighbour.visited && !isObstacle(neighbour) && notFound[0]) {
+    getNodeFromId(neighbourId).parent = parentId;
+    queue.unshift(neighbourId);
+    markVisitedId(neighbourId);
+    if (isTarget(getNodeFromId(neighbourId))) {
+      //traceBack(getNodeFromId(neighbourId));
+      notFound[0] = false;
+    }
+
+    if (isNormalNode(getNodeFromId(neighbourId))) {
+      changeCellColor(neighbour.x, neighbour.y, "#fc7703");
+      changes.push([neighbourId, "#fc7703"])
+    }
+  }
+  
+}
+function checkNeighbours(id, queue, changes, notFound) {
+  var node = getNodeFromId(id);
+   //neighbours
+   var neighbour = null;
+   var neighbourId = null;
+
+  if (node.x != 1) {
+
+
+    neighbour = grid.cells[node.y - 1][node.x - 2];
+    neighbourId = neighbour.y + "." + neighbour.x;
+    checkNeighbour(neighbourId, id, queue, changes, notFound);
+
+  }
+  if (node.y != 1) {
+    neighbour = grid.cells[node.y - 2][node.x - 1];
+    neighbourId = neighbour.y + "." + neighbour.x;
+    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    
+  }
+  if (node.x != grid.width ) {
+    neighbour = grid.cells[node.y - 1][node.x];
+    neighbourId = neighbour.y + "." + neighbour.x;
+    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    
+  }
+  if (node.y != grid.height) {
+    neighbour = grid.cells[node.y][node.x - 1];
+    neighbourId = neighbour.y + "." + neighbour.x;
+    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    
+  }
+
+}
+function newBFS() {
+  var changes = []; //holds all changes made during algorithm
+  var sourceNode = getNodeFromId(grid.origin);
+  var queue = [];
+  var notFound = [];
+  notFound[0] = true;
+  queue.unshift(grid.origin);
+  markVisited(sourceNode);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.pop();
+    var node = getNodeFromId(nodeId)
+    /* if (isNormalNode(node)) {
+      changeCellColor(node.x, node.y, "#f0ce54");
+    } */
+
+    checkNeighbours(nodeId, queue, stepChanges, notFound);
+    changes.push(stepChanges);
+    console.log(notFound)
+  }
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    traceBack(target);
+  }
+}
+
+
+
+
+
+
+
 
 // DFS - Start
 function stepDFS(queue, notFound) {
