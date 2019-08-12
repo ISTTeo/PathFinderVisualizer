@@ -467,8 +467,7 @@ function stepDFS(queue, notFound) {
   if (!notFound) {
     clearInterval(dfsInterval);
   } else {
-    var nodeId = queue.pop();
-
+    var nodeId = queue.pop();    
 
     var node = getNodeFromId(nodeId);
     if (isNormalNode(node)) {
@@ -564,7 +563,7 @@ function DFS() {
 
   //setInterval instead of while to allow for animations
   var dfsInterval = setInterval(function () {
-    if (!notFound) {
+    if (!notFound || queue.length == 0) {
       clearInterval(dfsInterval);
       enableResetBtn();
 
