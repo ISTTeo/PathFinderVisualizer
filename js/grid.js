@@ -480,7 +480,7 @@ function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
     }
 
     if (isNormalNode(getNodeFromId(neighbourId))) {
-      changeCellColor(neighbour.x, neighbour.y, "#fc7703");
+      //changeCellColor(neighbour.x, neighbour.y, "#fc7703");
       changes.push([neighbourId, "#fc7703"])
     }
   }
@@ -520,6 +520,19 @@ function checkNeighbours(id, queue, changes, notFound) {
   }
 
 }
+
+function newTraceBack(nodeID,changes) {
+  var node = getNodeFromId(nodeID);
+  var parent = getNodeFromId(node.parent);
+  var change = [];
+  while (parent.parent != undefined) {
+    var parentID = parent.y + "." + parent.x;
+    change.push([parentID, "blue"]);
+    parent = getNodeFromId(parent.parent);
+
+  }
+  changes.push(change);
+}
 function newBFS() {
   var changes = []; //holds all changes made during algorithm
   var sourceNode = getNodeFromId(grid.origin);
@@ -533,21 +546,52 @@ function newBFS() {
     var stepChanges = []; // this one holds the changes during a single step
     var nodeId = queue.pop();
     var node = getNodeFromId(nodeId)
-    /* if (isNormalNode(node)) {
-      changeCellColor(node.x, node.y, "#f0ce54");
-    } */
+    if (isNormalNode(node)) {
+      //changeCellColor(node.x, node.y, "#f0ce54");
+      stepChanges.push([nodeId, "#f0ce54"])
+    }
 
     checkNeighbours(nodeId, queue, stepChanges, notFound);
     changes.push(stepChanges);
-    console.log(notFound)
   }
+  console.log(changes)
   var target = getNodeFromId(grid.target);
   if(target.parent != undefined) {
-    traceBack(target);
+    newTraceBack(grid.target, changes);
   }
+  readChanges(changes)
 }
 
 
+
+function readChanges(changes) {
+  
+  var len = changes.length;
+  var i = 0;
+  console.log(len);
+  var changesInterval = setInterval(function () {
+    if (i == len) {
+      console.log("CLEAR");
+      
+      clearInterval(changesInterval);
+      enableResetBtn();
+
+    } else {
+      console.log(i)
+      var currentChange = changes[i];
+      console.log(currentChange)
+      for (var k = 0; k<currentChange.length; k++) {
+        var node = getNodeFromId(currentChange[k][0]);
+        changeCellColor(node.x,node.y, currentChange[k][1]);
+      } 
+
+      i++;
+      
+
+    }
+
+  }, 100);
+}
 
 
 
