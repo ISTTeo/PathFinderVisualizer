@@ -18,7 +18,11 @@ class Node {
   }
 }
 
+//
 var changes = null;
+var currentStep = 0;
+//
+
 var canSelectCell = true;
 var count = 0;
 var grid = {};
@@ -319,6 +323,7 @@ function resetGrid() {
   }
   enableAlgButtons();
   canSelectCell = true;
+  initStepCounter();
 
 
 }
@@ -432,32 +437,34 @@ function newBFS() {
   }
   enableResetBtn();
   enableReadBtn();
-
+  initStepCounter();
+  enableStepBtns();
 }
 
 
 
 function readChanges() {
   canSelectCell = false;
+  disableStepBtns();
   disableReset();
   disableAlgButtons();
   disableReadBtn();
 
   var len = changes.length;
-  var i = 0;
+  
   console.log(len);
   var changesInterval = setInterval(function () {
-    if (i == len) {      
+    if (currentStep == len) {      
       clearInterval(changesInterval);
       enableResetBtn();
     } else {
-      var currentChange = changes[i];
+      var currentChange = changes[currentStep];
       for (var k = 0; k<currentChange.length; k++) {
         var node = getNodeFromId(currentChange[k][0]);
         changeCellColor(node.x,node.y, currentChange[k][1]);
       } 
 
-      i++;
+      increaseStepCounter();
       
 
     }
@@ -768,7 +775,39 @@ function disableReadBtn() {
   btn.disabled = true;
 }
 
+function disableStepBtns() {
+  var inc = document.getElementById("incBtn");
+  var dec = document.getElementById("decBtn");
+
+  inc.disabled = true;
+  dec.disabled = true;
+
+}
+
+function enableStepBtns() {
+  var inc = document.getElementById("incBtn");
+  var dec = document.getElementById("decBtn");
+
+  inc.disabled = false;
+  dec.disabled = false;
+
+}
+
 function initStepCounter() {
-  var stepcounter = document.getElementById("totalSteps");
-  stepcounter.innerHTML = changes.length;
+  currentStep = 0;
+  var totSteps = document.getElementById("totalSteps");
+  var counter = document.getElementById("currentStep");
+
+  counter.innerHTML = currentStep;
+  totSteps.innerHTML = changes.length;
+  
+
+}
+
+function increaseStepCounter() {
+  var counter = document.getElementById("currentStep");
+  currentStep++;
+
+  counter.innerHTML = currentStep;
+
 }
