@@ -534,6 +534,10 @@ function newTraceBack(nodeID,changes) {
   changes.push(change);
 }
 function newBFS() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
   var changes = []; //holds all changes made during algorithm
   var sourceNode = getNodeFromId(grid.origin);
   var queue = [];
@@ -570,16 +574,12 @@ function readChanges(changes) {
   var i = 0;
   console.log(len);
   var changesInterval = setInterval(function () {
-    if (i == len) {
-      console.log("CLEAR");
-      
+    if (i == len) {      
       clearInterval(changesInterval);
       enableResetBtn();
 
     } else {
-      console.log(i)
       var currentChange = changes[i];
-      console.log(currentChange)
       for (var k = 0; k<currentChange.length; k++) {
         var node = getNodeFromId(currentChange[k][0]);
         changeCellColor(node.x,node.y, currentChange[k][1]);
@@ -879,7 +879,9 @@ function disableAlgButtons() {
   var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
   var btnBestFS = document.getElementById("bestfsButton");
-
+  var newBFSButton = document.getElementById("newBFSButton");
+  
+  newBFSButton.disabled = true;
   btnBestFS.disabled = true;
   btnDFS.disabled = true;
   btnBFS.disabled = true;
@@ -889,7 +891,9 @@ function enableAlgButtons() {
   var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
   var btnBestFS = document.getElementById("bestfsButton");
-
+  var newBFSButton = document.getElementById("newBFSButton");
+  
+  newBFSButton.disabled = false;
   btnBestFS.disabled = false;
   btnDFS.disabled = false;
   btnBFS.disabled = false;
