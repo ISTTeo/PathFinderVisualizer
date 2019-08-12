@@ -681,8 +681,6 @@ function bestFirstSearch() {
   //setInterval instead of while to allow for animations
   var bestfsInterval = setInterval(function () {
     if (!notFound || queue.length == 0) {
-      console.log(notFound);
-      
       clearInterval(bestfsInterval);
       enableResetBtn();
 
