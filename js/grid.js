@@ -353,7 +353,8 @@ function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
 
     if (isNormalNode(getNodeFromId(neighbourId))) {
       //changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-      changes.push([neighbourId, "#fc7703"])
+      var cellColor = document.getElementById(neighbourId).bgColor;
+      changes.push([neighbourId, "#fc7703", cellColor])
     }
   }
   
@@ -423,8 +424,11 @@ function newBFS() {
     var nodeId = queue.pop();
     var node = getNodeFromId(nodeId)
     if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      console.log(document.getElementById(nodeId))
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
       //changeCellColor(node.x, node.y, "#f0ce54");
-      stepChanges.push([nodeId, "#f0ce54"])
     }
 
     checkNeighbours(nodeId, queue, stepChanges, notFound);
@@ -438,7 +442,8 @@ function newBFS() {
   enableResetBtn();
   enableReadBtn();
   initStepCounter();
-  enableStepBtns();
+  enableIncStepBtn();
+  increaseStepCounter();
 }
 
 
@@ -458,11 +463,7 @@ function readChanges() {
       clearInterval(changesInterval);
       enableResetBtn();
     } else {
-      var currentChange = changes[currentStep];
-      for (var k = 0; k<currentChange.length; k++) {
-        var node = getNodeFromId(currentChange[k][0]);
-        changeCellColor(node.x,node.y, currentChange[k][1]);
-      } 
+       
 
       increaseStepCounter();
       
@@ -775,24 +776,42 @@ function disableReadBtn() {
   btn.disabled = true;
 }
 
+// STEP BTNS 
 function disableStepBtns() {
-  var inc = document.getElementById("incBtn");
-  var dec = document.getElementById("decBtn");
-
-  inc.disabled = true;
-  dec.disabled = true;
-
+  disableIncStepBtn();
+  disableDecStepBtn();
 }
 
 function enableStepBtns() {
-  var inc = document.getElementById("incBtn");
-  var dec = document.getElementById("decBtn");
+  enableIncStepBtn();
+  enableDecStepBtn();
+}
 
+function enableIncStepBtn() {
+  var inc = document.getElementById("incBtn");
   inc.disabled = false;
+
+}
+
+function enableDecStepBtn() {
+  var dec = document.getElementById("decBtn");
   dec.disabled = false;
 
 }
 
+function disableIncStepBtn() {
+  var inc = document.getElementById("incBtn");
+  inc.disabled = true;
+
+}
+
+function disableDecStepBtn() {
+  var dec = document.getElementById("decBtn");
+  dec.disabled = true;
+
+}
+
+// STEP BTNS END
 function initStepCounter() {
   currentStep = 0;
   var totSteps = document.getElementById("totalSteps");
@@ -805,9 +824,55 @@ function initStepCounter() {
 }
 
 function increaseStepCounter() {
-  var counter = document.getElementById("currentStep");
-  currentStep++;
+  
+  if(changes != null) {
+    var currentChange = changes[currentStep];
+  console.log(currentChange);
 
-  counter.innerHTML = currentStep;
+      for (var k = 0; k<currentChange.length; k++) {
+        var node = getNodeFromId(currentChange[k][0]);
+        changeCellColor(node.x,node.y, currentChange[k][1]);
+      }
 
+      var counter = document.getElementById("currentStep");
+      currentStep++;
+    
+      counter.innerHTML = currentStep;
+  
+    if(currentStep == changes.length) {
+      disableIncStepBtn();
+    }
+    if(currentStep == 1) {
+      enableDecStepBtn();
+    }
+  } else {
+    alert("You have to run an algorithm first");
+  }
+  
+}
+
+function decreaseStepCounter() {
+  if (changes != null) {
+    currentStep--;
+
+    var currentChange = changes[currentStep];
+    console.log(currentChange);
+    for (var k = 0; k<currentChange.length; k++) {
+      var node = getNodeFromId(currentChange[k][0]);
+      changeCellColor(node.x,node.y, currentChange[k][2]);
+    }    
+    
+
+    var counter = document.getElementById("currentStep");    
+    counter.innerHTML = currentStep;
+    
+    if(currentStep == 0) {
+      disableDecStepBtn();
+    }
+    if(currentStep == changes.length - 1) {
+      enableIncStepBtn();
+    }
+  } else {
+    alert("You have to run an algorithm first");
+  }
 }
