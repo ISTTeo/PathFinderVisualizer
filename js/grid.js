@@ -54,6 +54,19 @@ function gridDistances() {
   }
 }
 
+function cleanGridDistances() {
+  for (var row = 1; row < grid.height + 1; row++) {
+    for (var col = 1; col < grid.width + 1; col++) {
+
+      var id = row + "." + col;
+
+      var cell = document.getElementById(id);
+
+      cell.innerHTML = "";
+
+    }
+  }
+}
 // Grid Functionality
 function changeCellColor(x, y, color) {
   var cellId = y + "." + x;
@@ -134,8 +147,6 @@ function setOrigin(x, y) {
 
 // Grid Functionality
 function setTarget(x, y) {
-  console.log("set target");
-
   var id = y + "." + x;
   var node = getNodeFromId(id)
   if (isOrigin(node)) {
@@ -160,6 +171,7 @@ function setTarget(x, y) {
     }
     return true;
   }
+  
 
 
 }
@@ -433,7 +445,7 @@ function BFS() {
 
   //setInterval instead of while to allow for animations
   var bfsInterval = setInterval(function () {
-    if (!notFound) {
+    if (!notFound || queue.length == 0) {
       clearInterval(bfsInterval);
       enableResetBtn();
 
@@ -571,18 +583,12 @@ function DFS() {
 
 //Best-First-Search Start
 function bestfsStep(queue, notFound) {
-    console.log("beginStep: " + queue.priv.data);
-    
+
     var nodeId = queue.dequeue();
-    console.log("after dequeue: " + queue.priv.data);
-    console.log("bestfs step");
     
     var node = getNodeFromId(nodeId);
     if (isNormalNode(node)) {
-      console.log("Normal node");
-      console.log(node);
-      
-      changeCellColor(node.x, node.y, "red");
+      changeCellColor(node.x, node.y, "#f0ce54");
     }
 
     var neighbour = null;
@@ -593,7 +599,7 @@ function bestfsStep(queue, notFound) {
       if (!neighbour.visited && !isObstacle(neighbour)) {
         markVisited(neighbour);
         if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#f0ce54");
+          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
         }
         neighbour.parent = nodeId;
         if (isTarget(neighbour)) {
@@ -609,7 +615,7 @@ function bestfsStep(queue, notFound) {
       if (!neighbour.visited && !isObstacle(neighbour)) {
         markVisited(neighbour);
         if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#f0ce54");
+          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
         }
         neighbour.parent = nodeId;
         if (isTarget(neighbour)) {
@@ -625,7 +631,7 @@ function bestfsStep(queue, notFound) {
       if (!neighbour.visited && !isObstacle(neighbour)) {
         markVisited(neighbour);
         if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#f0ce54");
+          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
         }
         neighbour.parent = nodeId;
         if (isTarget(neighbour)) {
@@ -641,7 +647,7 @@ function bestfsStep(queue, notFound) {
       if (!neighbour.visited && !isObstacle(neighbour)) {
         markVisited(neighbour);
         if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#f0ce54");
+          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
         }
         neighbour.parent = nodeId;
         if (isTarget(neighbour)) {
@@ -653,13 +659,10 @@ function bestfsStep(queue, notFound) {
       }
     }
 
-  console.log("End of step" + queue.priv.data);
-  
 
   return [queue, notFound];
 }
 function bestFirstSearch() {
-  //gridDistances();
 
   canSelectCell = false;
   disableReset();
@@ -698,7 +701,6 @@ function bestFirstSearch() {
 initGrid(5, 5);
 setOrigin(1, 1);
 setTarget(5, 5);
-console.log(grid);
 
 //////////////////////////////////////////////
 // Page Related JS
