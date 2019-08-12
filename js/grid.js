@@ -1,7 +1,3 @@
-const queueTop = 0;
-const queueParent = i => ((i + 1) >>> 1) - 1;
-const queueLeft = i => (i << 1) + 1;
-const queueRight = i => (i + 1) << 1;
 
 function distanceToTarget(nodeID) {
   var target = getNodeFromId(grid.target);
@@ -22,6 +18,7 @@ class Node {
   }
 }
 
+var changes = null;
 var canSelectCell = true;
 var count = 0;
 var grid = {};
@@ -336,136 +333,6 @@ function traceBack(node) {
 
   }
 }
-// BFS -- Start //
-//TODO Proximity to the source defines how bright the color is
-function stepBFS(queue, notFound) {
-  if (!notFound) {
-    clearInterval(bfsInterval);
-  } else {
-    // Remove vertex from queue to visit its neighbours
-    var node = queue.pop();
-
-    if (isObstacle(node)) {
-      console.log("IS OBSTACLE" + JSON.stringify(node));
-    }
-    if (isNormalNode(node)) {
-      changeCellColor(node.x, node.y, "#f0ce54");
-    }
-
-    //neighbours
-    var leftNeighbour = null;
-    var topNeighbour = null;
-    var rightNeighbour = null;
-    var bottomNeighbour = null;
-
-    var id = node.y + "." + node.x;
-    if (node.x != 1 && notFound) {
-
-
-      leftNeighbour = grid.cells[node.y - 1][node.x - 2];
-      if (!leftNeighbour.visited && !isObstacle(leftNeighbour)) {
-
-        grid.cells[node.y - 1][node.x - 2].parent = id;
-        queue.unshift(leftNeighbour);
-        markVisited(leftNeighbour);
-        if (isTarget(leftNeighbour)) {
-          traceBack(grid.cells[node.y - 1][node.x - 2]);
-          notFound = false;
-        }
-
-        if (isNormalNode(leftNeighbour)) {
-          changeCellColor(leftNeighbour.x, leftNeighbour.y, "#fc7703");
-        }
-
-      }
-    }
-    if (node.y != 1 && notFound) {
-      topNeighbour = grid.cells[node.y - 2][node.x - 1];
-      if (!topNeighbour.visited && !isObstacle(topNeighbour)) {
-        grid.cells[node.y - 2][node.x - 1].parent = id;
-        queue.unshift(topNeighbour);
-        markVisited(topNeighbour);
-
-        if (isTarget(topNeighbour)) {
-          traceBack(grid.cells[node.y - 2][node.x - 1]);
-          notFound = false;
-        }
-
-        if (isNormalNode(topNeighbour)) {
-          changeCellColor(topNeighbour.x, topNeighbour.y, "#fc7703");
-        }
-      }
-    }
-    if (node.x != grid.width && notFound) {
-      rightNeighbour = grid.cells[node.y - 1][node.x];
-      if (!rightNeighbour.visited && !isObstacle(rightNeighbour)) {
-        grid.cells[node.y - 1][node.x].parent = id;
-        queue.unshift(rightNeighbour);
-        markVisited(rightNeighbour);
-
-        if (isTarget(rightNeighbour)) {
-          traceBack(grid.cells[node.y - 1][node.x]);
-          notFound = false;
-        }
-
-        if (isNormalNode(rightNeighbour)) {
-          changeCellColor(rightNeighbour.x, rightNeighbour.y, "#fc7703");
-        }
-      }
-    }
-    if (node.y != grid.height && notFound) {
-      bottomNeighbour = grid.cells[node.y][node.x - 1];
-      if (!bottomNeighbour.visited && !isObstacle(bottomNeighbour)) {
-        grid.cells[node.y][node.x - 1].parent = id;
-        queue.unshift(bottomNeighbour);
-        markVisited(bottomNeighbour);
-
-        if (isTarget(bottomNeighbour)) {
-          traceBack(grid.cells[node.y][node.x - 1]);
-          notFound = false;
-        }
-
-        if (isNormalNode(bottomNeighbour)) {
-          changeCellColor(bottomNeighbour.x, bottomNeighbour.y, "#fc7703");
-        }
-      }
-    }
-
-    return [queue, notFound];
-  }
-}
-
-function BFS() {
-  canSelectCell = false;
-  disableReset();
-  disableAlgButtons();
-
-  var notFound = true;
-  var sourceNode = getNodeFromId(grid.origin);
-  var queue = [];
-
-  queue.unshift(sourceNode);
-  markVisited(sourceNode);
-
-  //setInterval instead of while to allow for animations
-  var bfsInterval = setInterval(function () {
-    if (!notFound || queue.length == 0) {
-      clearInterval(bfsInterval);
-      enableResetBtn();
-
-    } else {
-      var res = stepBFS(queue, notFound);
-
-      queue = res[0];
-      notFound = res[1];
-
-    }
-
-  }, stepDur);
-
-}
-// BFS -- End //
-
 
 ///////////////////////
 function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
@@ -538,7 +405,7 @@ function newBFS() {
   disableReset();
   disableAlgButtons();
 
-  var changes = []; //holds all changes made during algorithm
+  changes = []; //holds all changes made during algorithm
   var sourceNode = getNodeFromId(grid.origin);
   var queue = [];
   var notFound = [];
@@ -563,13 +430,19 @@ function newBFS() {
   if(target.parent != undefined) {
     newTraceBack(grid.target, changes);
   }
-  readChanges(changes)
+  enableResetBtn();
+  enableReadBtn();
+
 }
 
 
 
-function readChanges(changes) {
-  
+function readChanges() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+  disableReadBtn();
+
   var len = changes.length;
   var i = 0;
   console.log(len);
@@ -577,7 +450,6 @@ function readChanges(changes) {
     if (i == len) {      
       clearInterval(changesInterval);
       enableResetBtn();
-
     } else {
       var currentChange = changes[i];
       for (var k = 0; k<currentChange.length; k++) {
@@ -837,25 +709,6 @@ initGrid(5, 5);
 setOrigin(1, 1);
 setTarget(5, 5);
 
-//////////////////////////////////////////////
-// Page Related JS
-
-//Collapsible
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function () {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-}
-// \Collapsible
 
 
 // Grid Functionality
@@ -876,7 +729,6 @@ function getCurrentCellType(li) {
 }
 
 function disableAlgButtons() {
-  var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
   var btnBestFS = document.getElementById("bestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
@@ -884,11 +736,9 @@ function disableAlgButtons() {
   newBFSButton.disabled = true;
   btnBestFS.disabled = true;
   btnDFS.disabled = true;
-  btnBFS.disabled = true;
 }
 
 function enableAlgButtons() {
-  var btnBFS = document.getElementById("bfsButton");
   var btnDFS = document.getElementById("dfsButton");
   var btnBestFS = document.getElementById("bestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
@@ -896,7 +746,6 @@ function enableAlgButtons() {
   newBFSButton.disabled = false;
   btnBestFS.disabled = false;
   btnDFS.disabled = false;
-  btnBFS.disabled = false;
 }
 
 function enableResetBtn() {
@@ -907,4 +756,19 @@ function enableResetBtn() {
 function disableReset() {
   var btn = document.getElementById("resetButton");
   btn.disabled = true;
+}
+
+function enableReadBtn() {
+  var btn = document.getElementById("readBtn");
+  btn.disabled = false;
+}
+
+function disableReadBtn() {
+  var btn = document.getElementById("readBtn");
+  btn.disabled = true;
+}
+
+function initStepCounter() {
+  var stepcounter = document.getElementById("totalSteps");
+  stepcounter.innerHTML = changes.length;
 }
