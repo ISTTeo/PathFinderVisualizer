@@ -32,31 +32,30 @@
             Step (in ms): <input id="stepInput" type="number" name="step" min="10" max="3000" value="100"><br>
 
           <br>
-          <button onclick="resetGrid()" id="resetButton">Reset</button>
+          <button disabled onclick="resetGrid()" id="resetButton">Reset</button>
           <hr>
-
-          <button type="button" name="button" id="bfsButton" onclick="BFS()">BFS</button>
+          <b>Only Automatic Visualization</b><br>
           <button type="button" name="button" id="dfsButton" onclick="DFS()">DFS</button>
           <button type="button" name="button" id="bestfsButton" onclick="bestFirstSearch()">BestFirstSearch</button>
+
+          <hr>
+          <b>Automatic and Step by Step Visualization</b>
+          <br>
+          <button type="button" name="button" id="newBFSButton" onclick="newBFS()">BFS</button>
+          <br>
+          (click Algorithm button, then either click Reset to run another, click Show Me What You Got for automatic mode or go step by step with the + and - buttons)
+          <br>
+          <button id="readBtn" disabled onclick="readChanges()">Show Me What You Got</button>
+          <br>
+          <button id="decBtn" disabled onclick="decreaseStepCounter()">-</button><button disabled onclick="increaseStepCounter()"id="incBtn">+</button> 
+          <a id="currentStep">0</a>|<b><a id="totalSteps">0</a> </b>
+
         </div>
 
         <div id="tableId">
         </div>
-
-        <div>
-          <hr>
-          <button class="collapsible" name="button">Breadth-first Search Algorithm</button>
-          <div class="content">
-            <div id="bfsContent">
-              <div class="feature">
-                <b>Look better: </b>
-                Make the collapse hidden as default
-              </div>
-              <img style="width:40%;" src="img/Animated_BFS.gif" alt="Animated GIF of BFS Algorithm">
-              <br>
-              <a href="https://en.wikipedia.org/wiki/Breadth-first_search">Wikipedia</a>
-            </div>
-          </div>
+        
+          
 
 
           <script src="js/priority-queue.js"></script>

@@ -470,7 +470,7 @@ function readChanges() {
 
     }
 
-  }, 100);
+  }, stepDur);
 }
 
 
