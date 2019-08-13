@@ -23,6 +23,7 @@ var table = document.getElementById("table");
 var inputs = document.getElementsByClassName("gridInput");
 var stepInput = document.getElementById("stepInput");
 var stepDur = 100;
+//"Watch" inputs
 stepInput.onchange = function () {
   stepDur = stepInput.valueAsNumber;
 }
