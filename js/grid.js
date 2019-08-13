@@ -443,6 +443,7 @@ function BestFirstSearch() {
 
 // Algorithms /
 
+// Algorithm Auxiliary Functions
 function newTraceBack(nodeID,changes) {
   var node = getNodeFromId(nodeID);
   var parent = getNodeFromId(node.parent);
@@ -454,31 +455,6 @@ function newTraceBack(nodeID,changes) {
 
   }
   changes.push(change);
-}
-
-function readChanges() {
-  canSelectCell = false;
-  disableStepBtns();
-  disableReset();
-  disableAlgButtons();
-  disableReadBtn();
-
-  var len = changes.length;
-  
-  console.log(len);
-  var changesInterval = setInterval(function () {
-    if (currentStep == len) {      
-      clearInterval(changesInterval);
-      enableResetBtn();
-    } else {
-       
-
-      increaseStepCounter();
-      
-
-    }
-
-  }, stepDur);
 }
 
 function checkNeighbour(neighbourId, parentId, queue, changes, notFound, op){
@@ -543,14 +519,13 @@ function checkNeighbours(id, queue, changes, notFound, op) {
   }
 
 }
+// Algorithm Auxiliary Functions - END
 
 // Initialize Grid
 initGrid(5, 5);
 setOrigin(1, 1);
 setTarget(5, 5);
 
-// Grid Functionality
-//Getcell cellType
 function getCurrentCellType(li) {
   var item = document.querySelector(".activeCellType");
   item.classList.remove("activeCellType")
@@ -566,6 +541,7 @@ function getCurrentCellType(li) {
 
 }
 
+// Algorithm Related Buttons
 function disableAlgButtons() {
   var btnDFS = document.getElementById("newDFSButton");
   var btnBestFS = document.getElementById("newbestfsButton");
@@ -605,8 +581,9 @@ function disableReadBtn() {
   var btn = document.getElementById("readBtn");
   btn.disabled = true;
 }
+// Algorithm Related Buttons - END
 
-// STEP BTNS 
+// Step Buttons Related Control 
 function disableStepBtns() {
   disableIncStepBtn();
   disableDecStepBtn();
@@ -640,8 +617,10 @@ function disableDecStepBtn() {
   dec.disabled = true;
 
 }
+// Step Buttons Related Control - END
+ 
 
-// STEP BTNS END
+//Step Controls
 function initStepCounter() {
   currentStep = 0;
   var totSteps = document.getElementById("totalSteps");
@@ -706,3 +685,29 @@ function decreaseStepCounter() {
     alert("You have to run an algorithm first");
   }
 }
+
+function readChanges() {
+  canSelectCell = false;
+  disableStepBtns();
+  disableReset();
+  disableAlgButtons();
+  disableReadBtn();
+
+  var len = changes.length;
+  
+  console.log(len);
+  var changesInterval = setInterval(function () {
+    if (currentStep == len) {      
+      clearInterval(changesInterval);
+      enableResetBtn();
+    } else {
+       
+
+      increaseStepCounter();
+      
+
+    }
+
+  }, stepDur);
+}
+//Step Controls - END
