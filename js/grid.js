@@ -1,10 +1,3 @@
-
-function distanceToTarget(nodeID) {
-  var target = getNodeFromId(grid.target);
-  var node = getNodeFromId(nodeID);
-  return Math.abs(node.x - target.x) + Math.abs(node.y - target.y);
-}
-
 class Node {
   constructor(x, y) {
     this.x = x;
@@ -18,7 +11,7 @@ class Node {
   }
 }
 
-//
+// Visualize with Steps
 var changes = [];
 var currentStep = 0;
 //
@@ -125,7 +118,6 @@ function initGrid(h, w) {
   document.getElementById("tableId").innerHTML = table;
 
 }
-
 
 // Grid Functionality
 //TODO bug when you set origin in target and then set target the origin disappears
@@ -265,8 +257,6 @@ function getNodeFromId(id) {
 
 }
 
-
-
 // Grid Functionality
 function markVisited(node) {
   getNodeFromGrid(node).visited = true;
@@ -306,8 +296,6 @@ function isNormalNodeFromId(id) {
   return !isOrigin(node) && !isTarget(node) && !isObstacle(node);
 }
 
-
-
 // Grid Functionality
 function resetGrid() {
   var row;
@@ -328,18 +316,171 @@ function resetGrid() {
 
 }
 
-//Used in BFS
-function traceBack(node) {
-  var parent = getNodeFromId(node.parent);
+// Algorithms
 
+function BFS() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  changes = []; //holds all changes made during algorithm
+  var sourceNode = getNodeFromId(grid.origin);
+  var queue = [];
+  var notFound = [];
+  notFound[0] = true;
+  queue.unshift(grid.origin);
+  markVisited(sourceNode);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.pop();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      console.log(document.getElementById(nodeId))
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
+      //changeCellColor(node.x, node.y, "#f0ce54");
+    }
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 0);
+    changes.push(stepChanges);
+  }
+  console.log(changes)
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
+}
+
+function DFS() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  changes = [];
+  var queue = [];
+  var sourceNodeId = grid.origin;
+  var notFound = [];
+  notFound[0] = true;
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.push(sourceNodeId);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.pop();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
+    }
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 1);
+    changes.push(stepChanges);
+  }
+  console.log(changes)
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
+}
+
+function distanceToTarget(nodeID) {
+  var target = getNodeFromId(grid.target);
+  var node = getNodeFromId(nodeID);
+  return Math.abs(node.x - target.x) + Math.abs(node.y - target.y);
+}
+function BestFirstSearch() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  changes = [];
+  // This comparator prioritizes nodes closer to target
+  // Uses PriorityQueue from adamhooper
+  var queue = new PriorityQueue({ comparator: function (a, b) { return distanceToTarget(a) - distanceToTarget(b); } });
+
+  var sourceNodeId = grid.origin;
+  var notFound = [];
+  notFound[0] = true;
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.queue(sourceNodeId);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.dequeue();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
+    }
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 2);
+    changes.push(stepChanges);
+  }
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
+}
+
+// Algorithms /
+
+function newTraceBack(nodeID,changes) {
+  var node = getNodeFromId(nodeID);
+  var parent = getNodeFromId(node.parent);
+  var change = [];
   while (parent.parent != undefined) {
-    changeCellColor(parent.x, parent.y, "blue");
+    var parentID = parent.y + "." + parent.x;
+    change.push([parentID, "blue"]);
     parent = getNodeFromId(parent.parent);
 
   }
+  changes.push(change);
 }
 
-///////////////////////
+function readChanges() {
+  canSelectCell = false;
+  disableStepBtns();
+  disableReset();
+  disableAlgButtons();
+  disableReadBtn();
+
+  var len = changes.length;
+  
+  console.log(len);
+  var changesInterval = setInterval(function () {
+    if (currentStep == len) {      
+      clearInterval(changesInterval);
+      enableResetBtn();
+    } else {
+       
+
+      increaseStepCounter();
+      
+
+    }
+
+  }, stepDur);
+}
+
 function checkNeighbour(neighbourId, parentId, queue, changes, notFound, op){
   var neighbour = getNodeFromId(neighbourId);
   if (!neighbour.visited && !isObstacle(neighbour) && notFound[0]) {
@@ -403,171 +544,10 @@ function checkNeighbours(id, queue, changes, notFound, op) {
 
 }
 
-function newTraceBack(nodeID,changes) {
-  var node = getNodeFromId(nodeID);
-  var parent = getNodeFromId(node.parent);
-  var change = [];
-  while (parent.parent != undefined) {
-    var parentID = parent.y + "." + parent.x;
-    change.push([parentID, "blue"]);
-    parent = getNodeFromId(parent.parent);
-
-  }
-  changes.push(change);
-}
-
-function newBFS() {
-  canSelectCell = false;
-  disableReset();
-  disableAlgButtons();
-
-  changes = []; //holds all changes made during algorithm
-  var sourceNode = getNodeFromId(grid.origin);
-  var queue = [];
-  var notFound = [];
-  notFound[0] = true;
-  queue.unshift(grid.origin);
-  markVisited(sourceNode);
-
-  while (queue.length != 0 && notFound[0]) {
-    var stepChanges = []; // this one holds the changes during a single step
-    var nodeId = queue.pop();
-    var node = getNodeFromId(nodeId)
-    if (isNormalNode(node)) {
-      // TODO Why doesn't getting the current .bgColor of cell work?
-      console.log(document.getElementById(nodeId))
-      var cellColor = document.getElementById(nodeId).bgColor;
-      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
-      //changeCellColor(node.x, node.y, "#f0ce54");
-    }
-    // 0 => unshift
-    checkNeighbours(nodeId, queue, stepChanges, notFound, 0);
-    changes.push(stepChanges);
-  }
-  console.log(changes)
-  var target = getNodeFromId(grid.target);
-  if(target.parent != undefined) {
-    newTraceBack(grid.target, changes);
-  }
-  enableResetBtn();
-  enableReadBtn();
-  initStepCounter();
-  enableIncStepBtn();
-  increaseStepCounter();
-}
-
-function readChanges() {
-  canSelectCell = false;
-  disableStepBtns();
-  disableReset();
-  disableAlgButtons();
-  disableReadBtn();
-
-  var len = changes.length;
-  
-  console.log(len);
-  var changesInterval = setInterval(function () {
-    if (currentStep == len) {      
-      clearInterval(changesInterval);
-      enableResetBtn();
-    } else {
-       
-
-      increaseStepCounter();
-      
-
-    }
-
-  }, stepDur);
-}
-// newDFS
-function newDFS() {
-  canSelectCell = false;
-  disableReset();
-  disableAlgButtons();
-
-  changes = [];
-  var queue = [];
-  var sourceNodeId = grid.origin;
-  var notFound = [];
-  notFound[0] = true;
-  markVisited(getNodeFromId(sourceNodeId));
-  queue.push(sourceNodeId);
-
-  while (queue.length != 0 && notFound[0]) {
-    var stepChanges = []; // this one holds the changes during a single step
-    var nodeId = queue.pop();
-    var node = getNodeFromId(nodeId)
-    if (isNormalNode(node)) {
-      // TODO Why doesn't getting the current .bgColor of cell work?
-      var cellColor = document.getElementById(nodeId).bgColor;
-      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
-    }
-    // 0 => unshift
-    checkNeighbours(nodeId, queue, stepChanges, notFound, 1);
-    changes.push(stepChanges);
-  }
-  console.log(changes)
-  var target = getNodeFromId(grid.target);
-  if(target.parent != undefined) {
-    newTraceBack(grid.target, changes);
-  }
-  enableResetBtn();
-  enableReadBtn();
-  initStepCounter();
-  enableIncStepBtn();
-  increaseStepCounter();
-}
-// newDFS end
-
-// newBestFirstSearch
-function newBestFirstSearch() {
-  canSelectCell = false;
-  disableReset();
-  disableAlgButtons();
-
-  changes = [];
-  // This comparator prioritizes nodes closer to target
-  // Uses PriorityQueue from adamhooper
-  var queue = new PriorityQueue({ comparator: function (a, b) { return distanceToTarget(a) - distanceToTarget(b); } });
-
-  var sourceNodeId = grid.origin;
-  var notFound = [];
-  notFound[0] = true;
-  markVisited(getNodeFromId(sourceNodeId));
-  queue.queue(sourceNodeId);
-
-  while (queue.length != 0 && notFound[0]) {
-    var stepChanges = []; // this one holds the changes during a single step
-    var nodeId = queue.dequeue();
-    var node = getNodeFromId(nodeId)
-    if (isNormalNode(node)) {
-      // TODO Why doesn't getting the current .bgColor of cell work?
-      var cellColor = document.getElementById(nodeId).bgColor;
-      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
-    }
-    // 0 => unshift
-    checkNeighbours(nodeId, queue, stepChanges, notFound, 2);
-    changes.push(stepChanges);
-  }
-  var target = getNodeFromId(grid.target);
-  if(target.parent != undefined) {
-    newTraceBack(grid.target, changes);
-  }
-  enableResetBtn();
-  enableReadBtn();
-  initStepCounter();
-  enableIncStepBtn();
-  increaseStepCounter();
-}
-
-
 // Initialize Grid
 initGrid(5, 5);
 setOrigin(1, 1);
 setTarget(5, 5);
-
-
 
 // Grid Functionality
 //Getcell cellType
