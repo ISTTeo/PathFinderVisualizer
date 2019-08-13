@@ -561,121 +561,6 @@ function newBestFirstSearch() {
   increaseStepCounter();
 }
 
-//Best-First-Search Start
-function bestfsStep(queue, notFound) {
-
-    var nodeId = queue.dequeue();
-    
-    var node = getNodeFromId(nodeId);
-    if (isNormalNode(node)) {
-      changeCellColor(node.x, node.y, "#f0ce54");
-    }
-
-    var neighbour = null;
-    var neighbourId = null;
-    if (node.x != 1 && notFound) {
-      neighbour = grid.cells[node.y - 1][node.x - 2];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.queue(neighbourId)
-      }
-    }
-    if (node.y != 1 && notFound) {
-      neighbour = grid.cells[node.y - 2][node.x - 1];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.queue(neighbourId)
-      }
-    }
-    if (node.x != grid.width && notFound) {
-      neighbour = grid.cells[node.y - 1][node.x];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.queue(neighbourId)
-      }
-    }
-    if (node.y != grid.height && notFound) {
-      neighbour = grid.cells[node.y][node.x - 1];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(neighbour)) {
-          changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-
-        }
-        queue.queue(neighbourId)
-      }
-    }
-
-
-  return [queue, notFound];
-}
-function bestFirstSearch() {
-
-  canSelectCell = false;
-  disableReset();
-  disableAlgButtons();
-
-  // This comparator prioritizes nodes closer to target
-  // Uses PriorityQueue from adamhooper
-  var queue = new PriorityQueue({ comparator: function (a, b) { return distanceToTarget(a) - distanceToTarget(b); } });
-
-  var sourceNodeId = grid.origin;
-  var notFound = true;
-
-  markVisited(getNodeFromId(sourceNodeId));
-  queue.queue(sourceNodeId);
-
-
-  //setInterval instead of while to allow for animations
-  var bestfsInterval = setInterval(function () {
-    if (!notFound || queue.length == 0) {
-      clearInterval(bestfsInterval);
-      enableResetBtn();
-
-    } else {
-      var res = bestfsStep(queue, notFound);
-
-      queue = res[0];
-      notFound = res[1];
-
-    }
-
-  }, stepDur);
-}
-//Best-First-Search End
 
 // Initialize Grid
 initGrid(5, 5);
@@ -703,7 +588,7 @@ function getCurrentCellType(li) {
 
 function disableAlgButtons() {
   var btnDFS = document.getElementById("newDFSButton");
-  var btnBestFS = document.getElementById("bestfsButton");
+  var btnBestFS = document.getElementById("newbestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
   
   newBFSButton.disabled = true;
@@ -713,7 +598,7 @@ function disableAlgButtons() {
 
 function enableAlgButtons() {
   var btnDFS = document.getElementById("newDFSButton");
-  var btnBestFS = document.getElementById("bestfsButton");
+  var btnBestFS = document.getElementById("newbestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
   
   newBFSButton.disabled = false;
