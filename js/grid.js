@@ -19,7 +19,7 @@ class Node {
 }
 
 //
-var changes = null;
+var changes = [];
 var currentStep = 0;
 //
 
@@ -340,11 +340,16 @@ function traceBack(node) {
 }
 
 ///////////////////////
-function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
+function checkNeighbour(neighbourId, parentId, queue, changes, notFound, op){
   var neighbour = getNodeFromId(neighbourId);
   if (!neighbour.visited && !isObstacle(neighbour) && notFound[0]) {
     getNodeFromId(neighbourId).parent = parentId;
-    queue.unshift(neighbourId);
+    if (op == 0) {
+      queue.unshift(neighbourId); 
+    } else {
+      queue.push(neighbourId);
+    }
+    
     markVisitedId(neighbourId);
     if (isTarget(getNodeFromId(neighbourId))) {
       //traceBack(getNodeFromId(neighbourId));
@@ -359,7 +364,8 @@ function checkNeighbour(neighbourId, parentId, queue, changes, notFound){
   }
   
 }
-function checkNeighbours(id, queue, changes, notFound) {
+
+function checkNeighbours(id, queue, changes, notFound, op) {
   var node = getNodeFromId(id);
    //neighbours
    var neighbour = null;
@@ -370,25 +376,25 @@ function checkNeighbours(id, queue, changes, notFound) {
 
     neighbour = grid.cells[node.y - 1][node.x - 2];
     neighbourId = neighbour.y + "." + neighbour.x;
-    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    checkNeighbour(neighbourId, id, queue, changes, notFound, op);
 
   }
   if (node.y != 1) {
     neighbour = grid.cells[node.y - 2][node.x - 1];
     neighbourId = neighbour.y + "." + neighbour.x;
-    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    checkNeighbour(neighbourId, id, queue, changes, notFound, op);
     
   }
   if (node.x != grid.width ) {
     neighbour = grid.cells[node.y - 1][node.x];
     neighbourId = neighbour.y + "." + neighbour.x;
-    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    checkNeighbour(neighbourId, id, queue, changes, notFound, op);
     
   }
   if (node.y != grid.height) {
     neighbour = grid.cells[node.y][node.x - 1];
     neighbourId = neighbour.y + "." + neighbour.x;
-    checkNeighbour(neighbourId, id, queue, changes, notFound);
+    checkNeighbour(neighbourId, id, queue, changes, notFound, op);
     
   }
 
@@ -406,6 +412,7 @@ function newTraceBack(nodeID,changes) {
   }
   changes.push(change);
 }
+
 function newBFS() {
   canSelectCell = false;
   disableReset();
@@ -430,8 +437,8 @@ function newBFS() {
       stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
       //changeCellColor(node.x, node.y, "#f0ce54");
     }
-
-    checkNeighbours(nodeId, queue, stepChanges, notFound);
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 0);
     changes.push(stepChanges);
   }
   console.log(changes)
@@ -445,8 +452,6 @@ function newBFS() {
   enableIncStepBtn();
   increaseStepCounter();
 }
-
-
 
 function readChanges() {
   canSelectCell = false;
@@ -472,129 +477,46 @@ function readChanges() {
 
   }, stepDur);
 }
-
-
-
-
-
-
-// DFS - Start
-function stepDFS(queue, notFound) {
-  if (!notFound) {
-    clearInterval(dfsInterval);
-  } else {
-    var nodeId = queue.pop();    
-
-    var node = getNodeFromId(nodeId);
-    if (isNormalNode(node)) {
-      changeCellColor(node.x, node.y, "#f0ce54");
-    }
-    var neighbour = null;
-    var neighbourId = null;
-    if (node.x != 1 && notFound) {
-
-
-      neighbour = grid.cells[node.y - 1][node.x - 2];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(node)) {
-          changeCellColor(node.x, node.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.push(neighbourId)
-      }
-    }
-    if (node.y != 1 && notFound) {
-      neighbour = grid.cells[node.y - 2][node.x - 1];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(node)) {
-          changeCellColor(node.x, node.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.push(neighbourId)
-      }
-    }
-    if (node.x != grid.width && notFound) {
-      neighbour = grid.cells[node.y - 1][node.x];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(node)) {
-          changeCellColor(node.x, node.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-        }
-        queue.push(neighbourId)
-      }
-    }
-    if (node.y != grid.height && notFound) {
-      neighbour = grid.cells[node.y][node.x - 1];
-      neighbourId = neighbour.y + "." + neighbour.x;
-      if (!neighbour.visited && !isObstacle(neighbour)) {
-        markVisited(neighbour);
-        if (isNormalNode(node)) {
-          changeCellColor(node.x, node.y, "#fc7703");
-        }
-        neighbour.parent = nodeId;
-        if (isTarget(neighbour)) {
-          traceBack(neighbour);
-          notFound = false;
-
-        }
-        queue.push(neighbourId)
-      }
-    }
-
-  }
-
-  return [queue, notFound];
-}
-
-function DFS() {
+// newDFS
+function newDFS() {
   canSelectCell = false;
   disableReset();
   disableAlgButtons();
 
+  changes = [];
   var queue = [];
   var sourceNodeId = grid.origin;
-  var notFound = true;
-
+  var notFound = [];
+  notFound[0] = true;
   markVisited(getNodeFromId(sourceNodeId));
   queue.push(sourceNodeId);
 
-
-  //setInterval instead of while to allow for animations
-  var dfsInterval = setInterval(function () {
-    if (!notFound || queue.length == 0) {
-      clearInterval(dfsInterval);
-      enableResetBtn();
-
-    } else {
-      var res = stepDFS(queue, notFound);
-
-      queue = res[0];
-      notFound = res[1];
-
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.pop();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
     }
-
-  }, stepDur);
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 1);
+    changes.push(stepChanges);
+  }
+  console.log(changes)
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
 }
+// newDFS end
 
-// DFS - End
 
 //Best-First-Search Start
 function bestfsStep(queue, notFound) {
@@ -737,7 +659,7 @@ function getCurrentCellType(li) {
 }
 
 function disableAlgButtons() {
-  var btnDFS = document.getElementById("dfsButton");
+  var btnDFS = document.getElementById("newDFSButton");
   var btnBestFS = document.getElementById("bestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
   
@@ -747,7 +669,7 @@ function disableAlgButtons() {
 }
 
 function enableAlgButtons() {
-  var btnDFS = document.getElementById("dfsButton");
+  var btnDFS = document.getElementById("newDFSButton");
   var btnBestFS = document.getElementById("bestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
   
@@ -826,8 +748,8 @@ function initStepCounter() {
 function increaseStepCounter() {
   
   if(changes != null) {
-    var currentChange = changes[currentStep];
-  console.log(currentChange);
+      var currentChange = changes[currentStep];
+      console.log(currentChange);
 
       for (var k = 0; k<currentChange.length; k++) {
         var node = getNodeFromId(currentChange[k][0]);
