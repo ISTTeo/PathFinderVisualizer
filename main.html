@@ -33,17 +33,16 @@
 
           <br>
           <button disabled onclick="resetGrid()" id="resetButton">Reset</button>
-          <hr>
-          <b>Only Automatic Visualization</b><br>
-          <button type="button" name="button" id="bestfsButton" onclick="bestFirstSearch()">BestFirstSearch</button>
 
           <hr>
-          <b>Automatic and Step by Step Visualization</b>
+          <b>Path-Finding Algorithms</b>
           <br>
           <button type="button" name="button" id="newBFSButton" onclick="newBFS()">BFS</button>
           <button type="button" name="button" id="newDFSButton" onclick="newDFS()">DFS</button>
+          <button type="button" name="button" id="newbestfsButton" onclick="newBestFirstSearch()">BestFirstSearch</button>
+
           <br>
-          (click Algorithm button, then either click Reset to run another, click Show Me What You Got for automatic mode or go step by step with the + and - buttons)
+          (click on the chosen algorithm's button, then either click Reset to try another algorithm or visualize the output: click Show Me What You Got to view it run freely or go step by step with the + and - buttons)
           <br>
           <button id="readBtn" disabled onclick="readChanges()">Show Me What You Got</button>
           <br>

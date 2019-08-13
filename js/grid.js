@@ -344,10 +344,13 @@ function checkNeighbour(neighbourId, parentId, queue, changes, notFound, op){
   var neighbour = getNodeFromId(neighbourId);
   if (!neighbour.visited && !isObstacle(neighbour) && notFound[0]) {
     getNodeFromId(neighbourId).parent = parentId;
+    //Depends on operation passed by algorithm  (queue structure and access used)
     if (op == 0) {
       queue.unshift(neighbourId); 
-    } else {
+    } else if (op == 1) {
       queue.push(neighbourId);
+    } else {
+      queue.queue(neighbourId)
     }
     
     markVisitedId(neighbourId);
@@ -517,6 +520,46 @@ function newDFS() {
 }
 // newDFS end
 
+// newBestFirstSearch
+function newBestFirstSearch() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  changes = [];
+  // This comparator prioritizes nodes closer to target
+  // Uses PriorityQueue from adamhooper
+  var queue = new PriorityQueue({ comparator: function (a, b) { return distanceToTarget(a) - distanceToTarget(b); } });
+
+  var sourceNodeId = grid.origin;
+  var notFound = [];
+  notFound[0] = true;
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.queue(sourceNodeId);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.dequeue();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
+    }
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 2);
+    changes.push(stepChanges);
+  }
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
+}
 
 //Best-First-Search Start
 function bestfsStep(queue, notFound) {
