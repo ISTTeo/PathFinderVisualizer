@@ -7,7 +7,9 @@ class Node {
     this.parent;
 
     //Djikstra, every node starts at infinity
-    this.distance = Infinity;
+    this.costSoFar = Infinity;
+
+
   }
 }
 
@@ -90,6 +92,7 @@ function parseCell(id) {
 
 // Grid Functionality
 function initGrid(h, w) {
+  resetShortestPath();
   count = 0;
   grid.height = h;
   grid.width = w;
@@ -97,8 +100,7 @@ function initGrid(h, w) {
   grid.target = null;
   grid.obstacles = [];
   grid.cells = [];
-  grid.unvisited = [];
-  //grid.minDistance = []; // index 0 is distance, index 1 is the id of the node
+
 
   var i, k;
   var table = "<table>";
@@ -110,7 +112,6 @@ function initGrid(h, w) {
       grid.cells[i].push(node);
       var cellId = node.y + "." + node.x;
       table += "<td id='" + cellId + "' onclick = cellClick(event); ></td>";
-      grid.unvisited.push(cellId);
     }
     table += "</tr>";
 
@@ -299,6 +300,7 @@ function isNormalNodeFromId(id) {
 
 // Grid Functionality
 function resetGrid() {
+  resetShortestPath();
   var row;
   var col;
   for (row = 0; row < grid.height; row++) {
@@ -308,6 +310,7 @@ function resetGrid() {
       if (isNormalNode(grid.cells[row][col])) {
         changeCellColor(col + 1, row + 1, "white");
       }
+      grid.cells[row][col].costSoFar = Infinity;
     }
   }
   enableAlgButtons();
@@ -338,7 +341,6 @@ function BFS() {
     var node = getNodeFromId(nodeId)
     if (isNormalNode(node)) {
       // TODO Why doesn't getting the current .bgColor of cell work?
-      console.log(document.getElementById(nodeId))
       var cellColor = document.getElementById(nodeId).bgColor;
       stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
       //changeCellColor(node.x, node.y, "#f0ce54");
@@ -347,7 +349,7 @@ function BFS() {
     checkNeighbours(nodeId, queue, stepChanges, notFound, 0);
     changes.push(stepChanges);
   }
-  console.log(changes)
+
   var target = getNodeFromId(grid.target);
   if(target.parent != undefined) {
     newTraceBack(grid.target, changes);
@@ -385,7 +387,6 @@ function DFS() {
     checkNeighbours(nodeId, queue, stepChanges, notFound, 1);
     changes.push(stepChanges);
   }
-  console.log(changes)
   var target = getNodeFromId(grid.target);
   if(target.parent != undefined) {
     newTraceBack(grid.target, changes);
@@ -424,7 +425,7 @@ function BestFirstSearch() {
     var node = getNodeFromId(nodeId)
     if (isNormalNode(node)) {
       // TODO Why doesn't getting the current .bgColor of cell work?
-      var cellColor = document.getElementById(nodeId).bgColor;
+      //var cellColor = document.getElementById(nodeId).bgColor;
       stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
     }
     // 0 => unshift
@@ -442,46 +443,122 @@ function BestFirstSearch() {
   increaseStepCounter();
 }
 
+function AStarPriority(nodeID) {
+  var target = getNodeFromId(grid.target);
+  var node = getNodeFromId(nodeID);
+  var distance = Math.abs(node.x - target.x) + Math.abs(node.y - target.y);
+  return node.costSoFar + distance;
+}
+
+function AStar() {
+  canSelectCell = false;
+  disableReset();
+  disableAlgButtons();
+
+  changes = [];
+
+  var notFound = [];
+  notFound[0] = true;
+  var queue = new PriorityQueue({ comparator: function (a, b) { return AStarPriority(a) - AStarPriority(b); } });
+
+  var sourceNodeId = grid.origin;
+  getNodeFromId(sourceNodeId).costSoFar = 0;
+  markVisited(getNodeFromId(sourceNodeId));
+  queue.queue(sourceNodeId);
+
+  while (queue.length != 0 && notFound[0]) {
+    var stepChanges = []; // this one holds the changes during a single step
+    var nodeId = queue.dequeue();
+    var node = getNodeFromId(nodeId)
+    if (isNormalNode(node)) {
+      // TODO Why doesn't getting the current .bgColor of cell work?
+      //var cellColor = document.getElementById(nodeId).bgColor;
+      stepChanges.push([nodeId, "#f0ce54", "#fc7703"])
+    }
+    // 0 => unshift
+    checkNeighbours(nodeId, queue, stepChanges, notFound, 3);
+    changes.push(stepChanges);
+  }
+  var target = getNodeFromId(grid.target);
+  if(target.parent != undefined) {
+    newTraceBack(grid.target, changes);
+  }
+  enableResetBtn();
+  enableReadBtn();
+  initStepCounter();
+  enableIncStepBtn();
+  increaseStepCounter();
+
+}
+
 // Algorithms /
 
 // Algorithm Auxiliary Functions
 function newTraceBack(nodeID,changes) {
+  var pathLen = 0;
   var node = getNodeFromId(nodeID);
   var parent = getNodeFromId(node.parent);
   var change = [];
   while (parent.parent != undefined) {
+    pathLen++;
     var parentID = parent.y + "." + parent.x;
     change.push([parentID, "blue"]);
     parent = getNodeFromId(parent.parent);
 
   }
+  changeShortestPath(pathLen);
   changes.push(change);
 }
 
 function checkNeighbour(neighbourId, parentId, queue, changes, notFound, op){
+  var newCost = getNodeFromId(parentId).costSoFar + 1;
   var neighbour = getNodeFromId(neighbourId);
-  if (!neighbour.visited && !isObstacle(neighbour) && notFound[0]) {
-    getNodeFromId(neighbourId).parent = parentId;
-    //Depends on operation passed by algorithm  (queue structure and access used)
-    if (op == 0) {
-      queue.unshift(neighbourId); 
-    } else if (op == 1) {
-      queue.push(neighbourId);
+  if (!isObstacle(neighbour) && notFound[0]) {
+    if (op == 3) {
+      if (newCost < getNodeFromId(neighbourId).costSoFar) {
+        getNodeFromId(neighbourId).costSoFar = newCost;
+        getNodeFromId(neighbourId).parent = parentId;
+        queue.queue(neighbourId);
+
+        markVisitedId(neighbourId);
+        if (isTarget(getNodeFromId(neighbourId))) {
+          //traceBack(getNodeFromId(neighbourId));
+          notFound[0] = false;
+        }
+
+        if (isNormalNode(getNodeFromId(neighbourId))) {
+          //changeCellColor(neighbour.x, neighbour.y, "#fc7703");
+          var cellColor = document.getElementById(neighbourId).bgColor;
+          changes.push([neighbourId, "#fc7703", cellColor])
+        }
+      }
     } else {
-      queue.queue(neighbourId)
+      if (!neighbour.visited) {
+        getNodeFromId(neighbourId).parent = parentId;
+        //Depends on operation passed by algorithm  (queue structure and access used)
+        if (op == 0) {
+          queue.unshift(neighbourId); 
+        } else if (op == 1) {
+          queue.push(neighbourId);
+        } else {
+          queue.queue(neighbourId)
+        }
+        
+        markVisitedId(neighbourId);
+        if (isTarget(getNodeFromId(neighbourId))) {
+          //traceBack(getNodeFromId(neighbourId));
+          notFound[0] = false;
+        }
+
+        if (isNormalNode(getNodeFromId(neighbourId))) {
+          //changeCellColor(neighbour.x, neighbour.y, "#fc7703");
+          var cellColor = document.getElementById(neighbourId).bgColor;
+          changes.push([neighbourId, "#fc7703", cellColor])
+        }
+      }
     }
     
-    markVisitedId(neighbourId);
-    if (isTarget(getNodeFromId(neighbourId))) {
-      //traceBack(getNodeFromId(neighbourId));
-      notFound[0] = false;
-    }
-
-    if (isNormalNode(getNodeFromId(neighbourId))) {
-      //changeCellColor(neighbour.x, neighbour.y, "#fc7703");
-      var cellColor = document.getElementById(neighbourId).bgColor;
-      changes.push([neighbourId, "#fc7703", cellColor])
-    }
+    
   }
   
 }
@@ -526,7 +603,6 @@ function checkNeighbours(id, queue, changes, notFound, op) {
 initGrid(5, 5);
 setOrigin(1, 1);
 setTarget(5, 5);
-
 function getCurrentCellType(li) {
   var item = document.querySelector(".activeCellType");
   item.classList.remove("activeCellType")
@@ -547,7 +623,9 @@ function disableAlgButtons() {
   var btnDFS = document.getElementById("newDFSButton");
   var btnBestFS = document.getElementById("newbestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
-  
+  var AStarButton = document.getElementById("AStarButton");
+
+  AStarButton.disabled = true;
   newBFSButton.disabled = true;
   btnBestFS.disabled = true;
   btnDFS.disabled = true;
@@ -557,7 +635,9 @@ function enableAlgButtons() {
   var btnDFS = document.getElementById("newDFSButton");
   var btnBestFS = document.getElementById("newbestfsButton");
   var newBFSButton = document.getElementById("newBFSButton");
-  
+  var AStarButton = document.getElementById("AStarButton");
+
+  AStarButton.disabled = false;
   newBFSButton.disabled = false;
   btnBestFS.disabled = false;
   btnDFS.disabled = false;
@@ -637,7 +717,6 @@ function increaseStepCounter() {
   
   if(changes != null) {
       var currentChange = changes[currentStep];
-      console.log(currentChange);
 
       for (var k = 0; k<currentChange.length; k++) {
         var node = getNodeFromId(currentChange[k][0]);
@@ -666,7 +745,6 @@ function decreaseStepCounter() {
     currentStep--;
 
     var currentChange = changes[currentStep];
-    console.log(currentChange);
     for (var k = 0; k<currentChange.length; k++) {
       var node = getNodeFromId(currentChange[k][0]);
       changeCellColor(node.x,node.y, currentChange[k][2]);
@@ -696,7 +774,6 @@ function readChanges() {
 
   var len = changes.length;
   
-  console.log(len);
   var changesInterval = setInterval(function () {
     if (currentStep == len) {      
       clearInterval(changesInterval);
@@ -712,3 +789,12 @@ function readChanges() {
   }, stepDur);
 }
 //Step Controls - END
+
+function resetShortestPath() {
+  changeShortestPath("Unknown");
+}
+
+function changeShortestPath(value) {
+  var a = document.getElementById("shortestPath");
+  a.innerHTML = value;
+}

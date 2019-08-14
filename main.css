@@ -58,3 +58,7 @@
 .activeCellType {
   background-color: grey !important; 
 }
+
+.shortestPath {
+  font-size: 150%;
+}
