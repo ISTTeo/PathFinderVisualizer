@@ -40,6 +40,10 @@
           <button type="button" name="button" id="newBFSButton" onclick="BFS()">BFS</button>
           <button type="button" name="button" id="newDFSButton" onclick="DFS()">DFS</button>
           <button type="button" name="button" id="newbestfsButton" onclick="BestFirstSearch()">BestFirstSearch</button>
+          <button type="button" name="button" id="AStarButton" onclick="AStar()">A*</button>
+
+
+          
 
           <br>
           (click on the chosen algorithm's button, then either click Reset to try another algorithm or visualize the output: click Show Me What You Got to view it run freely or go step by step with the + and - buttons)
@@ -53,10 +57,14 @@
 
         <div id="tableId">
         </div>
+        <div class="shortestPath">
+          <b>Shortest Path: </b><a id="shortestPath">Unknown</a>
+        </div>
+        
         
           
 
-
+          <!-- Adam Hooper-s Priority Queue -->
           <script src="js/priority-queue.js"></script>
         <script src="js/grid.js" async defer></script>
     </body>
