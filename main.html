@@ -37,6 +37,11 @@
           <hr>
           <b>Path-Finding Algorithms</b>
           <br>
+          (click on the chosen algorithm's button, then either click Reset to try another algorithm or visualize the output: click Show Me What You Got to view it run freely or go step by step with the + and - buttons)
+
+          <br>
+          <br>
+
           <button type="button" name="button" id="newBFSButton" onclick="BFS()">BFS</button>
           <button type="button" name="button" id="newDFSButton" onclick="DFS()">DFS</button>
           <button type="button" name="button" id="newbestfsButton" onclick="BestFirstSearch()">BestFirstSearch</button>
@@ -45,12 +50,13 @@
 
           
 
+          
           <br>
-          (click on the chosen algorithm's button, then either click Reset to try another algorithm or visualize the output: click Show Me What You Got to view it run freely or go step by step with the + and - buttons)
           <br>
           <button id="readBtn" disabled onclick="readChanges()">Show Me What You Got</button>
           <br>
-          <button id="decBtn" disabled onclick="decreaseStepCounter()">-</button><button disabled onclick="increaseStepCounter()"id="incBtn">+</button> 
+          <br>
+          <button id="decBtn" disabled onclick="decreaseStepCounter()">-</button>  <button disabled onclick="increaseStepCounter()"id="incBtn">+</button> 
           <a id="currentStep">0</a>|<b><a id="totalSteps">0</a> </b>
 
         </div>
